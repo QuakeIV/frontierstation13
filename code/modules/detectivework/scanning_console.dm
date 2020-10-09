@@ -9,7 +9,7 @@
 	var/obj/item/scanning
 	var/datum/data/record/forensic/current
 
-	var/list/filters = list()
+	var/list/forensic_filters = list()
 	var/list/current_list = list()
 
 	var/list/files = list()
@@ -96,50 +96,50 @@
 	for(var/id in files)
 		var/datum/data/record/forensic/cur = files[id]
 		var/add = 1
-		if(filters["name"])
+		if(forensic_filters["name"])
 			add = 0
-			for(var/filter in filters["name"])
+			for(var/filter in forensic_filters["name"])
 				if(findtext(cur.fields["name"], filter))
 					add = 1
 					break
 
-		if(filters["area"])
+		if(forensic_filters["area"])
 			add = 0
-			for(var/filter in filters["area"])
+			for(var/filter in forensic_filters["area"])
 				if(findtext(cur.fields["area"], filter))
 					add = 1
 					break
 
-		if(filters["fprints"])
+		if(forensic_filters["fprints"])
 			add = 0
 			var/list/prints = cur.fields["fprints"]
 			for(var/pid in prints)
 				var/print = prints[pid]
 				if (is_complete_print(print))
-					for(var/filter in filters["fprints"])
+					for(var/filter in forensic_filters["fprints"])
 						if(findtext(print, filter))
 							add = 1
 							break
 
-		if(filters["fibers"])
+		if(forensic_filters["fibers"])
 			add = 0
 			for(var/fiber in cur.fields["fibers"])
-				for(var/filter in filters["fibers"])
+				for(var/filter in forensic_filters["fibers"])
 					if(findtext(fiber, filter))
 						add = 1
 						break
 
-		if(filters["blood"])
+		if(forensic_filters["blood"])
 			add = 0
 			for(var/DNA in cur.fields["blood"])
-				for(var/filter in filters["blood"])
+				for(var/filter in forensic_filters["blood"])
 					if(findtext(DNA, filter))
 						add = 1
 						break
 
-		if(filters["label"])
+		if(forensic_filters["label"])
 			add = 0
-			for(var/filter in filters["label"])
+			for(var/filter in forensic_filters["label"])
 				if(cur.fields["label"] && findtext(cur.fields["label"], filter))
 					add = 1
 					break
@@ -224,9 +224,9 @@
 		if("filter")
 			var/filterstr = sanitize(input("Input the search criteria. Multiple values can be input, separated by a comma.", "Filter setting") as text|null)
 			if(filterstr)
-				filters[href_list["filter"]] = text2list(filterstr,",")
+				forensic_filters[href_list["filter"]] = text2list(filterstr,",")
 			else
-				filters[href_list["filter"]] = null
+				forensic_filters[href_list["filter"]] = null
 		if("screen")
 			screen = href_list["screen"]
 		if("details")
