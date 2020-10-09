@@ -366,14 +366,14 @@
 
 	get_breath_from_environment(var/volume_needed=BREATH_VOLUME)
 		var/datum/gas_mixture/breath = ..()
-	
+
 		if(breath)
 			//exposure to extreme pressures can rupture lungs
 			var/check_pressure = breath.return_pressure()
 			if(check_pressure < ONE_ATMOSPHERE / 5 || check_pressure > ONE_ATMOSPHERE * 5)
 				if(!is_lung_ruptured() && prob(5))
 					rupture_lung()
-		
+
 		return breath
 
 	handle_breath(datum/gas_mixture/breath)
@@ -1348,8 +1348,8 @@
 						else
 							bodytemp.icon_state = "temp0"
 			if(blind)
-				if(blinded)		blind.layer = 18
-				else			blind.layer = 0
+				if(blinded)		blind.invisibility = 0
+				else			blind.invisibility = 101
 
 			if(disabilities & NEARSIGHTED)	//this looks meh but saves a lot of memory by not requiring to add var/prescription
 				if(glasses)					//to every /obj/item

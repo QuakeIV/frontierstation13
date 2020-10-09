@@ -57,7 +57,7 @@
 			affected.status |= ORGAN_BLEEDING
 
 		affected.createwound(CUT, 1)
-		affected.clamp()
+		affected.clamp_bleeder()
 		spread_germs_to_organ(affected, user)
 
 	fail_step(mob/living/user, mob/living/carbon/human/target, target_zone, obj/item/tool)
@@ -97,7 +97,7 @@
 			affected.status |= ORGAN_BLEEDING
 
 		affected.createwound(CUT, 1)
-		affected.clamp()
+		affected.clamp_bleeder()
 		affected.open = 2
 
 	fail_step(mob/living/user, mob/living/carbon/human/target, target_zone, obj/item/tool)
@@ -172,7 +172,7 @@
 		var/obj/item/organ/external/affected = target.get_organ(target_zone)
 		user.visible_message("\blue [user] clamps bleeders in [target]'s [affected.name] with \the [tool].",	\
 		"\blue You clamp bleeders in [target]'s [affected.name] with \the [tool].")
-		affected.clamp()
+		affected.clamp_bleeder()
 		spread_germs_to_organ(affected, user)
 
 	fail_step(mob/living/user, mob/living/carbon/human/target, target_zone, obj/item/tool)
