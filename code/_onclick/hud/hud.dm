@@ -271,6 +271,8 @@ datum/hud/New(mob/owner)
 	else
 		mymob.instantiate_hud(src)
 
+	mymob.client.fps = 100
+
 /mob/proc/instantiate_hud(var/datum/hud/HUD)
 	return
 
