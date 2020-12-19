@@ -1,12 +1,12 @@
 // BEGIN_INTERNALS
 /*
 MAP_ZOOM: 1.000
-LAST_COMPILE_TIME: 1602215271
-DIR: code code\__HELPERS code\_onclick code\_onclick\hud code\ATMOSPHERICS code\ATMOSPHERICS\components code\ATMOSPHERICS\components\omni_devices code\game code\game\antagonist code\game\area code\game\gamemodes code\game\machinery code\game\machinery\computer code\game\machinery\computer3 code\game\machinery\doors code\game\objects code\game\objects\items code\game\objects\items\devices code\game\objects\items\weapons code\game\objects\structures code\modules code\modules\admin code\modules\admin\DB ban code\modules\detectivework code\modules\flufftext code\modules\mob code\modules\mob\living code\modules\mob\living\carbon code\modules\mob\living\carbon\alien code\modules\mob\living\carbon\brain code\modules\mob\living\carbon\human code\modules\mob\living\silicon code\modules\mob\living\silicon\ai code\modules\mob\living\silicon\pai code\modules\mob\living\silicon\robot code\modules\mob\living\simple_animal code\modules\mob\living\simple_animal\constructs code\modules\mob\living\simple_animal\friendly code\modules\mob\new_player code\modules\nano code\modules\nano\modules code\modules\organs code\modules\overmap code\modules\paperwork code\modules\power code\modules\research code\modules\research\xenoarchaeology code\modules\research\xenoarchaeology\artifact code\modules\research\xenoarchaeology\finds code\modules\scripting code\modules\scripting\Implementations code\modules\scripting\Scanner code\modules\surgery 
+LAST_COMPILE_TIME: 1608374906
+DIR: code code\__HELPERS code\_onclick code\_onclick\hud code\ATMOSPHERICS code\ATMOSPHERICS\components code\ATMOSPHERICS\components\omni_devices code\game code\game\antagonist code\game\area code\game\gamemodes code\game\machinery code\modules code\modules\mob code\modules\organs code\modules\research code\modules\research\xenoarchaeology code\modules\research\xenoarchaeology\finds code\modules\surgery 
 AUTO_FILE_DIR: OFF
 MAP_ICON_TYPE: 0
-LAST_COMPILE_VERSION: 513.1533
-WINDOW: code\modules\mob\hear_say.dm;code\__HELPERS\text.dm;code\modules\research\xenoarchaeology\finds\finds_talkingitem.dm;code\modules\organs\organ_external.dm;code\modules\surgery\generic.dm;code\game\machinery\jukebox.dm;code\game\machinery\computer3\program.dm;code\game\antagonist\antagonist_create.dm;code\game\area\Space Station 13 areas.dm;code\game\gamemodes\gameticker.dm;code\game\gamemodes\newobjective.dm;code\_onclick\hud\alien_larva.dm;code\_onclick\hud\human.dm;code\_onclick\hud\monkey.dm;code\_onclick\hud\other_mobs.dm
-FILE: code\_onclick\hud\other_mobs.dm
+LAST_COMPILE_VERSION: 513.1539
+WINDOW: code\modules\mob\hear_say.dm;code\__HELPERS\text.dm;code\modules\research\xenoarchaeology\finds\finds_talkingitem.dm;code\modules\organs\organ_external.dm;code\modules\surgery\generic.dm;code\game\machinery\jukebox.dm;code\_onclick\hud\other_mobs.dm;code\world.dm;code\__HELPERS\game.dm;code\_onclick\ai.dm;code\_onclick\click.dm;code\_onclick\cyborg.dm;code\_onclick\observer.dm;code\_onclick\oldcode.dm;code\_onclick\hud\_defines.dm;code\_onclick\hud\alien_larva.dm;code\_onclick\hud\hud.dm
+FILE: code\_onclick\hud\hud.dm
 */
 // END_INTERNALS
