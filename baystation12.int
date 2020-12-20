@@ -1,12 +1,12 @@
 // BEGIN_INTERNALS
 /*
 MAP_ZOOM: 1.000
-LAST_COMPILE_TIME: 1608374906
-DIR: code code\__HELPERS code\_onclick code\_onclick\hud code\ATMOSPHERICS code\ATMOSPHERICS\components code\ATMOSPHERICS\components\omni_devices code\game code\game\antagonist code\game\area code\game\gamemodes code\game\machinery code\modules code\modules\mob code\modules\organs code\modules\research code\modules\research\xenoarchaeology code\modules\research\xenoarchaeology\finds code\modules\surgery 
+LAST_COMPILE_TIME: 1608420781
+DIR: code code\_onclick\hud code\ATMOSPHERICS\components code\ATMOSPHERICS\components\omni_devices code\defines\obj code\game\objects code\game\objects\items code\game\objects\items\weapons code\modules code\modules\examine code\modules\examine\descriptions code\modules\mob code\modules\mob\living code\modules\mob\living\carbon code\modules\mob\living\carbon\human code\modules\mob\living\carbon\metroid code\modules\organs code\modules\projectiles code\modules\projectiles\guns code\modules\projectiles\guns\projectile code\modules\research code\modules\research\xenoarchaeology code\modules\research\xenoarchaeology\finds code\modules\surgery icons icons\mob icons\mob\human_races icons\mob\human_races\monkeys maps 
 AUTO_FILE_DIR: OFF
 MAP_ICON_TYPE: 0
 LAST_COMPILE_VERSION: 513.1539
-WINDOW: code\modules\mob\hear_say.dm;code\__HELPERS\text.dm;code\modules\research\xenoarchaeology\finds\finds_talkingitem.dm;code\modules\organs\organ_external.dm;code\modules\surgery\generic.dm;code\game\machinery\jukebox.dm;code\_onclick\hud\other_mobs.dm;code\world.dm;code\__HELPERS\game.dm;code\_onclick\ai.dm;code\_onclick\click.dm;code\_onclick\cyborg.dm;code\_onclick\observer.dm;code\_onclick\oldcode.dm;code\_onclick\hud\_defines.dm;code\_onclick\hud\alien_larva.dm;code\_onclick\hud\hud.dm
-FILE: code\_onclick\hud\hud.dm
+WINDOW: code\game\objects\items\weapons\weaponry.dm;code\game\objects\weapons.dm;code\modules\examine\descriptions\weapons.dm;code\modules\projectiles\guns\projectile.dm;code\modules\projectiles\guns\projectile\automatic.dm;code\modules\research\xenoarchaeology\finds\finds.dm;code\modules\mob\living\carbon\human\npcs.dm;icons\mob\uniform.dmi;maps\exodus-1.dmm;icons\mob\human.dmi
+FILE: maps\exodus-1.dmm
 */
 // END_INTERNALS
