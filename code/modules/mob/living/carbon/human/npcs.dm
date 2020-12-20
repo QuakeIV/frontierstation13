@@ -1,13 +1,13 @@
-/obj/item/clothing/under/punpun
+/obj/item/clothing/under/deempisi
 	name = "fancy uniform"
 	desc = "It looks like it was tailored for a monkey."
-	icon_state = "punpun"
-	worn_state = "punpun"
+	icon_state = "deempisi"
+	worn_state = "deempisi"
 	species_restricted = list("Monkey")
 
-/mob/living/carbon/human/monkey/punpun/New()
+/mob/living/carbon/human/monkey/deempisi/New()
 	..()
 	spawn(1)
-		name = "Pun Pun"
+		name = "Mr. Deempisi"
 		real_name = name
-		w_uniform = new /obj/item/clothing/under/punpun(src)
+		w_uniform = new /obj/item/clothing/under/deempisi(src)
