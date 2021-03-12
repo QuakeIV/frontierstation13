@@ -64,7 +64,9 @@
 	var/impact_type
 
 	var/datum/plot_vector/trajectory	// used to plot the path of the projectile
+	var/datum/plot_vector/effect_trajectory	// used to draw laser beams and such
 	var/datum/vector_loc/location		// current location of the projectile in pixel space
+	var/datum/vector_loc/effect_location		// current location of the projectile effect in pixel space
 	var/matrix/effect_transform			// matrix to rotate and scale projectile effects - putting it here so it doesn't
 										//  have to be recreated multiple times
 
@@ -290,7 +292,9 @@
 			return
 
 		trajectory.increment()	// increment the current location
+		effect_trajectory.increment()
 		location = trajectory.return_location(location)		// update the locally stored location data
+		effect_location = effect_trajectory.return_location(location)
 
 		if(!location)
 			qdel(src)	// if it's left the world... kill it
@@ -325,13 +329,21 @@
 		offset = rand(-radius, radius)
 
 	// plot the initial trajectory
+	var/turf/curloc = get_turf(src)
+	var/turf/targloc = get_turf(original)
+	effect_trajectory = new() //for the visual effect
+	effect_trajectory.setup(curloc, targloc, pixel_x, pixel_y, angle_offset=offset)
+	// start the travel path of the projectile stepped forward (separate from the visual effect)
+	// this facilitates shooting around corners, because get_dir will point laterally first
+	curloc = get_step(curloc, get_dir(curloc, targloc))
+
 	trajectory = new()
-	trajectory.setup(starting, original, pixel_x, pixel_y, angle_offset=offset)
+	trajectory.setup(curloc, targloc, pixel_x, pixel_y, angle_offset=offset)
 
 	// generate this now since all visual effects the projectile makes can use it
 	effect_transform = new()
-	effect_transform.Scale(trajectory.return_hypotenuse(), 1)
-	effect_transform.Turn(-trajectory.return_angle())		//no idea why this has to be inverted, but it works
+	effect_transform.Scale(effect_trajectory.return_hypotenuse(), 1)
+	effect_transform.Turn(-effect_trajectory.return_angle())		//no idea why this has to be inverted, but it works
 
 	transform = turn(transform, -(trajectory.return_angle() + 90)) //no idea why 90 needs to be added, but it works
 
@@ -344,18 +356,18 @@
 
 		if(istype(M))
 			M.set_transform(T)
-			M.pixel_x = location.pixel_x
-			M.pixel_y = location.pixel_y
+			M.pixel_x = effect_location.pixel_x
+			M.pixel_y = effect_location.pixel_y
 			M.activate()
 
 /obj/item/projectile/proc/tracer_effect(var/matrix/M)
 	if(ispath(tracer_type))
-		var/obj/effect/projectile/P = new tracer_type(location.loc)
+		var/obj/effect/projectile/P = new tracer_type(effect_location.loc)
 
 		if(istype(P))
 			P.set_transform(M)
-			P.pixel_x = location.pixel_x
-			P.pixel_y = location.pixel_y
+			P.pixel_x = effect_location.pixel_x
+			P.pixel_y = effect_location.pixel_y
 			if(!hitscan)
 				P.activate(step_delay)	//if not a hitscan projectile, remove after a single delay
 			else
@@ -394,6 +406,7 @@
 /obj/item/projectile/test/process()
 	var/turf/curloc = get_turf(src)
 	var/turf/targloc = get_turf(target)
+
 	if(!curloc || !targloc)
 		return 0
 	yo = targloc.y - curloc.y
