@@ -2,11 +2,11 @@
 /*
 MAP_ZOOM: 1.000
 LAST_COMPILE_TIME: 1608420781
-DIR: code code\_onclick\hud code\ATMOSPHERICS\components code\ATMOSPHERICS\components\omni_devices code\defines\obj code\game\objects code\game\objects\items code\game\objects\items\weapons code\modules code\modules\examine code\modules\examine\descriptions code\modules\mob code\modules\mob\living code\modules\mob\living\carbon code\modules\mob\living\carbon\human code\modules\mob\living\carbon\metroid code\modules\organs code\modules\projectiles code\modules\projectiles\guns code\modules\projectiles\guns\projectile code\modules\research code\modules\research\xenoarchaeology code\modules\research\xenoarchaeology\finds code\modules\surgery icons icons\mob icons\mob\human_races icons\mob\human_races\monkeys maps 
+DIR: code code\_onclick\hud code\ATMOSPHERICS\components code\ATMOSPHERICS\components\omni_devices code\datums code\defines\obj code\game\objects code\game\objects\items code\game\objects\items\weapons code\modules\examine code\modules\examine\descriptions code\modules\projectiles code\modules\projectiles\guns code\modules\projectiles\guns\projectile maps 
 AUTO_FILE_DIR: OFF
 MAP_ICON_TYPE: 0
 LAST_COMPILE_VERSION: 513.1539
-WINDOW: code\game\objects\items\weapons\weaponry.dm;code\game\objects\weapons.dm;code\modules\examine\descriptions\weapons.dm;code\modules\projectiles\guns\projectile.dm;code\modules\projectiles\guns\projectile\automatic.dm;code\modules\research\xenoarchaeology\finds\finds.dm;code\modules\mob\living\carbon\human\npcs.dm;icons\mob\uniform.dmi;maps\exodus-1.dmm;icons\mob\human.dmi
-FILE: maps\exodus-1.dmm
+WINDOW: code\game\objects\items\weapons\weaponry.dm;code\game\objects\weapons.dm;code\modules\examine\descriptions\weapons.dm;code\modules\projectiles\guns\projectile.dm;code\modules\projectiles\guns\projectile\automatic.dm;maps\exodus-1.dmm;code\datums\chatmessage.dm
+FILE: code\datums\chatmessage.dm
 */
 // END_INTERNALS
