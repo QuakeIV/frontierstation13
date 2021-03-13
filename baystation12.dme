@@ -52,6 +52,7 @@
 #include "code\_onclick\hud\robot.dm"
 #include "code\_onclick\hud\screen_objects.dm"
 #include "code\_onclick\hud\spell_screen_objects.dm"
+#include "code\assorted_imports\chat_import.dm"
 #include "code\ATMOSPHERICS\_atmos_setup.dm"
 #include "code\ATMOSPHERICS\_atmospherics_helpers.dm"
 #include "code\ATMOSPHERICS\atmospherics.dm"

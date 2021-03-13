@@ -1,4 +1,3 @@
-// PORT FROM PARADISE STATION CODE MAR 12, 2021 COMMIT HASH ca29f53, AGPL APPLIES PER THEIR LICENSE
 
 /// How long the chat message's spawn-in animation will occur for
 #define CHAT_MESSAGE_SPAWN_TIME		0.2 SECONDS
@@ -43,10 +42,6 @@
 	var/approx_lines
 	/// The current index used for adjusting the layer of each sequential chat message such that recent messages will overlay older ones
 	var/static/current_z_idx = 0
-	/// Contains the reference to the next chatmessage in the bucket, used by runechat subsystem
-	var/datum/chatmessage/next
-	/// Contains the reference to the previous chatmessage in the bucket, used by runechat subsystem
-	var/datum/chatmessage/prev
 
 /**
   * Constructs a chat message overlay
@@ -62,27 +57,28 @@
 	. = ..()
 	if (!istype(target))
 		CRASH("Invalid target given for chatmessage")
-	if(QDELETED(owner) || !istype(owner) || !owner.client)
-		stack_trace("/datum/chatmessage created with [isnull(owner) ? "null" : "invalid"] mob owner")
+	if(!owner)
+		CRASH("/datum/chatmessage created with [isnull(owner) ? "null" : "invalid"] mob owner")
 		qdel(src)
 		return
-	INVOKE_ASYNC(src, .proc/generate_image, text, target, owner, lifespan, italics, size)
+
+	spawn()
+		process(text, target, owner, lifespan, italics, size)
 
 /datum/chatmessage/Destroy()
 	if (owned_by)
-		if (owned_by.seen_messages)
-			LAZYREMOVEASSOC(owned_by.seen_messages, message_loc, src)
+		if(owned_by.seen_messages) { if(owned_by.seen_messages[message_loc]) { owned_by.seen_messages[message_loc] -= src; if(!length(owned_by.seen_messages[message_loc])) owned_by.seen_messages -= message_loc; } if(!length(owned_by.seen_messages)) owned_by.seen_messages = null; }
 		owned_by.images.Remove(message)
 	owned_by = null
 	message_loc = null
 	message = null
-	leave_subsystem()
 	return ..()
 
-/**
-  * Calls qdel on the chatmessage when its parent is deleted, used to register qdel signal
-  */
-/datum/chatmessage/proc/on_parent_qdel()
+/datum/chatmessage/proc/process(text, atom/target, mob/owner, lifespan, italics, size)
+	generate_image(text, target, owner, lifespan, italics, size)
+	sleep(lifespan)
+	end_of_life()
+	sleep(10)
 	qdel(src)
 
 /**
@@ -92,26 +88,17 @@
   * * text - The text content of the overlay
   * * target - The target atom to display the overlay at
   * * owner - The mob that owns this overlay, only this mob will be able to view it
-  * * radio_speech - Fancy shmancy radio icon represents that we use radio
   * * lifespan - The lifespan of the message in deciseconds
   * * italics - Just copy and paste, sir
   */
-/datum/chatmessage/proc/generate_image(text, atom/target, mob/owner, lifespan, italics, size)
+/datum/chatmessage/proc/generate_image(text, atom/target, mob/owner, lifespan, italics)
 	// Register client who owns this message
 	owned_by = owner.client
-	RegisterSignal(owned_by, COMSIG_PARENT_QDELETING, .proc/on_parent_qdel)
 
 	// Clip message
 	var/maxlen = CHAT_MESSAGE_MAX_LENGTH
-	var/datum/html/split_holder/s = split_html(text)
-	if (length_char(s.inner_text) > maxlen)
-		var/chattext = copytext_char(s.inner_text, 1, maxlen + 1) + "..."
-		text = jointext(s.opening, "") + chattext + jointext(s.closing, "")
-
-	// Calculate target color if not already present
-	if (!target.chat_color || target.chat_color_name != target.name)
-		target.chat_color = colorize_string(target.name)
-		target.chat_color_name = target.name
+	if (length_char(text) > maxlen)
+		text = copytext_char(text, 1, maxlen + 1) + "..." // BYOND index moment
 
 	// Get rid of any URL schemes that might cause BYOND to automatically wrap something in an anchor tag
 	var/static/regex/url_scheme = new(@"[A-Za-z][A-Za-z0-9+-\.]*:\/\/", "g")
@@ -123,11 +110,11 @@
 		qdel(src)
 		return
 
-	var/output_color = sanitize_color(target.get_runechat_color()) // Get_runechat_color can be overriden on atoms to display a specific one (Example: Humans having their hair colour as runechat colour)
+	var/output_color = "white" // currently always the same chat color
 
 	// Approximate text height
 	var/static/regex/html_metachars = new(@"&[A-Za-z]{1,7};", "g")
-	var/complete_text = "<span class='center maptext[size ? " [size]" : ""]' style='[italics ? "font-style: italic; " : ""]color: [output_color]'>[text]</span>"
+	var/complete_text = "<span class='center maptext' style='text-align:center;font-size:8px;font-family:Sans-serif;[italics ? "font-style: italic; " : ""]color: [output_color];text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;'>[text]</span>"
 	var/mheight = WXH_TO_HEIGHT(owned_by.MeasureText(complete_text, null, CHAT_MESSAGE_WIDTH))
 	approx_lines = max(1, mheight / CHAT_MESSAGE_APPROX_LHEIGHT)
 
@@ -143,7 +130,6 @@
 			var/sched_remaining = m.scheduled_destruction - world.time
 			if (!m.eol_complete)
 				var/remaining_time = (sched_remaining) * (CHAT_MESSAGE_EXP_DECAY ** idx++) * (CHAT_MESSAGE_HEIGHT_DECAY ** combined_height)
-				m.enter_subsystem(world.time + remaining_time) // push updated time to runechat SS
 
 	// Reset z index if relevant
 	if (current_z_idx >= CHAT_LAYER_MAX_Z)
@@ -151,7 +137,7 @@
 
 	// Build message image
 	message = image(loc = message_loc, layer = CHAT_LAYER + CHAT_LAYER_Z_STEP * current_z_idx++)
-	message.plane = GAME_PLANE
+	message.plane = 1
 	message.appearance_flags = APPEARANCE_UI_IGNORE_ALPHA | KEEP_APART
 	message.alpha = 0
 	message.pixel_y = owner.bound_height * 0.95
@@ -161,13 +147,12 @@
 	message.maptext = complete_text
 
 	// View the message
-	LAZYADDASSOC(owned_by.seen_messages, message_loc, src)
+	if(!owned_by.seen_messages) { owned_by.seen_messages = list(); } owned_by.seen_messages[message_loc] += list(src);
 	owned_by.images |= message
 	animate(message, alpha = 255, time = CHAT_MESSAGE_SPAWN_TIME)
 
 	// Prepare for destruction
 	scheduled_destruction = world.time + (lifespan - CHAT_MESSAGE_EOL_FADE)
-	enter_subsystem()
 
 /**
   * Applies final animations to overlay CHAT_MESSAGE_EOL_FADE deciseconds prior to message deletion
@@ -175,7 +160,6 @@
 /datum/chatmessage/proc/end_of_life(fadetime = CHAT_MESSAGE_EOL_FADE)
 	eol_complete = scheduled_destruction + fadetime
 	animate(message, alpha = 0, time = fadetime, flags = ANIMATION_PARALLEL)
-	enter_subsystem(eol_complete) // re-enter the runechat SS with the EOL completion time to QDEL self
 
 /**
   * Creates a message overlay at a defined location for a given speaker
@@ -188,8 +172,8 @@
   */
 /mob/proc/create_chat_message(atom/movable/speaker, raw_message, italics=FALSE, size)
 
-	if(isobserver(src))
-		return
+	//if(isobserver(src))
+	//	return
 
 
 	// Display visual above source
@@ -247,28 +231,3 @@
 			return "#[num2hex(x, 2)][num2hex(m, 2)][num2hex(c, 2)]"
 		if(5)
 			return "#[num2hex(c, 2)][num2hex(m, 2)][num2hex(x, 2)]"
-
-
-/**
-  * Ensures a colour is bright enough for the system
-  *
-  * This proc is used to brighten parts of a colour up if its too dark, and looks bad
-  *
-  * Arguments:
-  * * hex - Hex colour to be brightened up
-  */
-/datum/chatmessage/proc/sanitize_color(color)
-	var/list/HSL = rgb2hsl(hex2num(copytext(color,2,4)),hex2num(copytext(color,4,6)),hex2num(copytext(color,6,8)))
-	HSL[3] = max(HSL[3],0.4)
-	var/list/RGB = hsl2rgb(arglist(HSL))
-	return "#[num2hex(RGB[1],2)][num2hex(RGB[2],2)][num2hex(RGB[3],2)]"
-
-/**
-  * Proc to allow atoms to set their own runechat colour
-  *
-  * This is a proc designed to be overridden in places if you want a specific atom to use a specific runechat colour
-  * Exampls include consoles using a colour based on their screen colour, and mobs using a colour based off of a customisation property
-  *
-  */
-/atom/proc/get_runechat_color()
-	return chat_color
