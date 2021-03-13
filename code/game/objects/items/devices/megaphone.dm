@@ -46,6 +46,9 @@
 			spamcheck = 0
 		return
 
+	for(var/mob/M in get_mobs_in_view(7, src))
+		M.create_chat_message(user, message, "big")
+
 /obj/item/device/megaphone/attackby(obj/item/I, mob/user)
 	if(istype(I, /obj/item/weapon/card/emag) && !emagged)
 		user << "\red You overload \the [src]'s voice synthesizer."

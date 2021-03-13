@@ -74,14 +74,16 @@
 		// AI can hear their own message, this formats it for them.
 		if(speaking)
 			src << "<i><span class='game say'>Holopad transmitted, <span class='name'>[real_name]</span> [speaking.format_message(message, verb)]</span></i>"
+			create_chat_message(H, message)
 		else
 			src << "<i><span class='game say'>Holopad transmitted, <span class='name'>[real_name]</span> [verb], <span class='message'><span class='body'>\"[message]\"</span></span></span></i>"
+			create_chat_message(H, message)
 
 		//This is so pAI's and people inside lockers/boxes,etc can hear the AI Holopad, the alternative being recursion through contents.
 		//This is much faster.
 		var/list/listening = list()
 		var/list/listening_obj = list()
-		var/turf/T = get_turf(H)		
+		var/turf/T = get_turf(H)
 
 		if(T)
 			var/list/hear = hear(7, T)

@@ -66,20 +66,36 @@
 			else
 				src << "<span class='name'>[speaker_name]</span>[alt_name] talks but you cannot hear \him."
 	else
+		speaker_name = "<span class='name'>[speaker_name]</span>[alt_name] [track]"
 		if(language)
-			on_hear_say("<span class='game say'><span class='name'>[speaker_name]</span>[alt_name] [track][language.format_message(message, verb)]</span>")
+			on_hear_say(message, speaker, speaker_name, verb, language)
 		else
-			on_hear_say("<span class='game say'><span class='name'>[speaker_name]</span>[alt_name] [track][verb], <span class='message'><span class='body'>\"[message]\"</span></span></span>")
+			on_hear_say(message, speaker, speaker_name, verb, language)
 		if (speech_sound && (get_dist(speaker, src) <= world.view && src.z == speaker.z))
 			var/turf/source = speaker? get_turf(speaker) : get_turf(src)
 			src.playsound_local(source, speech_sound, sound_vol, 1)
 
-/mob/proc/on_hear_say(var/message)
-	src << message
+/mob/proc/on_hear_say(var/message, var/speaker, var/speaker_name, var/verb, var/datum/language/language)
+	//TODO: emotes dont actually come through here, fix that?
+	if (language && (language.flags & (INNATE|NONVERBAL|SIGNLANG)))
+		create_chat_message(speaker, "[capitalize(message)]", TRUE)
+	else
+		create_chat_message(speaker, "[capitalize(message)]")
+	if(language)
+		message = "[language.format_message(message, verb)]"
+	else
+		message = "[verb], [message]"
+	src << "<spam class='game say'>[speaker_name] <span class='message'><span class='body'>\"[message]\"</span></span></span>"
 
-/mob/living/silicon/on_hear_say(var/message)
+
+/mob/living/silicon/on_hear_say(var/message, var/speaker, /var/speaker_name, var/verb, var/datum/language/language)
+	//TODO: emotes dont actually come through here, fix that?
+	if (language && (language.flags & (INNATE|NONVERBAL|SIGNLANG)))
+		create_chat_message(speaker, "[capitalize(message)]", TRUE)
+	else
+		create_chat_message(speaker, "[capitalize(message)]")
 	var/time = say_timestamp()
-	src << "[time] [message]"
+	src << "[time] <spam class='game say'>[speaker_name] [verb], <span class='message'><span class='body'>\"[message]\"</span></span></span>"
 
 /mob/proc/hear_radio(var/message, var/verb="says", var/datum/language/language=null, var/part_a, var/part_b, var/mob/speaker = null, var/hard_to_hear = 0, var/vname ="")
 
