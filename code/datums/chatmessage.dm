@@ -65,6 +65,13 @@
 	spawn()
 		process(text, target, owner, lifespan, italics, size)
 
+/datum/chatmessage/proc/process(text, atom/target, mob/owner, lifespan, italics, size)
+	generate_image(text, target, owner, lifespan, italics, size)
+	sleep(lifespan)
+	end_of_life()
+	sleep(10)
+	qdel(src)
+
 /datum/chatmessage/Destroy()
 	if (owned_by)
 		if(owned_by.seen_messages) { if(owned_by.seen_messages[message_loc]) { owned_by.seen_messages[message_loc] -= src; if(!length(owned_by.seen_messages[message_loc])) owned_by.seen_messages -= message_loc; } if(!length(owned_by.seen_messages)) owned_by.seen_messages = null; }
@@ -73,13 +80,6 @@
 	message_loc = null
 	message = null
 	return ..()
-
-/datum/chatmessage/proc/process(text, atom/target, mob/owner, lifespan, italics, size)
-	generate_image(text, target, owner, lifespan, italics, size)
-	sleep(lifespan)
-	end_of_life()
-	sleep(10)
-	qdel(src)
 
 /**
   * Generates a chat message image representation
@@ -114,7 +114,8 @@
 
 	// Approximate text height
 	var/static/regex/html_metachars = new(@"&[A-Za-z]{1,7};", "g")
-	var/complete_text = "<span class='center maptext' style='text-align:center;font-size:8px;font-family:Sans-serif;[italics ? "font-style: italic; " : ""]color: [output_color];text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;'>[text]</span>"
+	var/complete_text = "<span style=\"text-align: center; font-family: 'Small Fonts'; font-size: 7px; -dm-text-outline: 1px black; line-height: 1.1; color: [output_color];\">[text]</span>"
+	//text-align: center; font-family: 'Small Fonts'; font-size: 7px; -dm-text-outline: 1px black; line-height: 1.1;
 	var/mheight = WXH_TO_HEIGHT(owned_by.MeasureText(complete_text, null, CHAT_MESSAGE_WIDTH))
 	approx_lines = max(1, mheight / CHAT_MESSAGE_APPROX_LHEIGHT)
 
