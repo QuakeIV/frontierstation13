@@ -85,7 +85,7 @@
 		message = "[language.format_message(message, verb)]"
 	else
 		message = "[verb], [message]"
-	src << "<spam class='game say'>[speaker_name] <span class='message'><span class='body'>\"[message]\"</span></span></span>"
+	src << "<span class='game say'>[speaker_name] <span class='message'><span class='body'>\"[message]\"</span></span></span>"
 
 
 /mob/living/silicon/on_hear_say(var/message, var/speaker, /var/speaker_name, var/verb, var/datum/language/language)
@@ -95,7 +95,7 @@
 	else
 		create_chat_message(speaker, "[capitalize(message)]")
 	var/time = say_timestamp()
-	src << "[time] <spam class='game say'>[speaker_name] [verb], <span class='message'><span class='body'>\"[message]\"</span></span></span>"
+	src << "[time] <span class='game say'>[speaker_name] [verb], <span class='message'><span class='body'>\"[message]\"</span></span></span>"
 
 /mob/proc/hear_radio(var/message, var/verb="says", var/datum/language/language=null, var/part_a, var/part_b, var/mob/speaker = null, var/hard_to_hear = 0, var/vname ="")
 
