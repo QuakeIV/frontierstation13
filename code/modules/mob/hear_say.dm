@@ -66,7 +66,7 @@
 			else
 				src << "<span class='name'>[speaker_name]</span>[alt_name] talks but you cannot hear \him."
 	else
-		speaker_name = "<span class='name'>[speaker_name]</span>[alt_name] [track]"
+		speaker_name = "<span class='name'>[speaker_name]</span>[alt_name][track]"
 		if(language)
 			on_hear_say(message, speaker, speaker_name, verb, language)
 		else
@@ -84,8 +84,8 @@
 	if(language)
 		message = "[language.format_message(message, verb)]"
 	else
-		message = "[verb], [message]"
-	src << "<span class='game say'>[speaker_name] <span class='message'><span class='body'>\"[message]\"</span></span></span>"
+		message = "[verb], \"[message]\""
+	src << "<span class='game say'>[speaker_name] <span class='message'><span class='body'>[message]</span></span></span>"
 
 
 /mob/living/silicon/on_hear_say(var/message, var/speaker, /var/speaker_name, var/verb, var/datum/language/language)
