@@ -232,8 +232,8 @@
 	projectile = /obj/item/missile
 	fire_sound = 'sound/effects/bang.ogg'
 	projectiles = 8
-	projectile_energy_cost = 1000
-	equip_cooldown = 60
+	projectile_energy_cost = 100
+	equip_cooldown = 5
 
 /obj/item/mecha_parts/mecha_equipment/weapon/ballistic/missile_rack/explosive/Fire(atom/movable/AM, atom/target, turf/aimloc)
 	var/obj/item/missile/M = AM
