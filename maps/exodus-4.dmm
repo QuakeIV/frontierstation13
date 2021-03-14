@@ -45,7 +45,7 @@
 "aS" = (/obj/machinery/portable_atmospherics/canister/air,/obj/structure/window/basic{tag = "icon-window (WEST)"; icon_state = "window"; dir = 8},/turf/simulated/floor{icon_state = "bot"; dir = 1},/area/constructionsite/teleporter)
 "aT" = (/turf/simulated/floor,/area/constructionsite/teleporter)
 "aU" = (/obj/structure/table/reinforced,/obj/item/clothing/shoes/magboots,/obj/item/clothing/suit/space/void/engineering,/obj/item/clothing/glasses/meson,/obj/item/clothing/head/helmet/space/void/engineering,/obj/item/weapon/tank/oxygen,/obj/random/tech_supply,/obj/random/tech_supply,/obj/random/tech_supply,/turf/simulated/floor,/area/constructionsite/teleporter)
-"aV" = (/obj/structure/table/reinforced,/obj/item/stack/material/phoron{amount = 10},/obj/random/powercell,/obj/random/tech_supply,/obj/random/tech_supply,/turf/simulated/floor,/area/constructionsite/teleporter)
+"aV" = (/obj/structure/table/reinforced,/obj/item/stack/material/plasma{amount = 10},/obj/random/powercell,/obj/random/tech_supply,/obj/random/tech_supply,/turf/simulated/floor,/area/constructionsite/teleporter)
 "aW" = (/turf/simulated/wall,/area/constructionsite/ai)
 "aX" = (/turf/simulated/floor/plating/airless,/area/constructionsite/ai)
 "aY" = (/turf/simulated/floor/airless{tag = "icon-bcircuit"; icon_state = "bcircuit"},/area/constructionsite/ai)

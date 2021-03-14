@@ -35,7 +35,7 @@
 #define O2STANDARD 0.21 // Percentage.
 #define N2STANDARD 0.79
 
-#define MOLES_PHORON_VISIBLE 0.7 // Moles in a standard cell after which phoron is visible.
+#define MOLES_PLASMA_VISIBLE 0.7 // Moles in a standard cell after which plasma is visible.
 #define MOLES_O2STANDARD     (MOLES_CELLSTANDARD * O2STANDARD) // O2 standard value (21%)
 #define MOLES_N2STANDARD     (MOLES_CELLSTANDARD * N2STANDARD) // N2 standard value (79%)
 
@@ -132,9 +132,9 @@
 #define CARBON_LIFEFORM_FIRE_RESISTANCE (T0C + 200)
 #define CARBON_LIFEFORM_FIRE_DAMAGE     4
 
-// Phoron fire properties.
-#define PHORON_MINIMUM_BURN_TEMPERATURE    (T0C +  126) //400 K - autoignite temperature in tanks and canisters - enclosed environments I guess
-#define PHORON_FLASHPOINT                  (T0C +  246) //519 K - autoignite temperature in air if that ever gets implemented.
+// Plasma fire properties.
+#define PLASMA_MINIMUM_BURN_TEMPERATURE    (T0C +  126) //400 K - autoignite temperature in tanks and canisters - enclosed environments I guess
+#define PLASMA_FLASHPOINT                  (T0C +  246) //519 K - autoignite temperature in air if that ever gets implemented.
 
 //These control the mole ratio of oxidizer and fuel used in the combustion reaction
 #define FIRE_REACTION_OXIDIZER_AMOUNT	3 //should be greater than the fuel amount if fires are going to spread much
@@ -215,7 +215,7 @@
 #define OPENCONTAINER          1024 // Is an open container for chemistry purposes.
 #define BLOCK_GAS_SMOKE_EFFECT 2048 // Blocks the effect that chemical clouds would have on a mob -- glasses, mask and helmets ONLY! (NOTE: flag shared with ONESIZEFITSALL)
 #define ONESIZEFITSALL         2048
-#define PHORONGUARD            4096 // Does not get contaminated by phoron.
+#define PLASMAGUARD            4096 // Does not get contaminated by plasma.
 #define	NOREACT                4096 // Reagents don't react inside this container.
 #define BLOCKHEADHAIR          4    // Temporarily removes the user's hair overlay. Leaves facial hair.
 #define BLOCKHAIR              8192 // Temporarily removes the user's hair, facial and otherwise.

@@ -75,8 +75,8 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 				return_name = "Gold"
 			if("silver")
 				return_name = "Silver"
-			if("phoron")
-				return_name = "Solid Phoron"
+			if("plasma")
+				return_name = "Solid Plasma"
 			if("uranium")
 				return_name = "Uranium"
 			if("diamond")
@@ -355,8 +355,8 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 									linked_lathe.gold_amount = max(0, (linked_lathe.gold_amount-being_built.materials[M]*linked_lathe.mat_efficiency))
 								if("$silver")
 									linked_lathe.silver_amount = max(0, (linked_lathe.silver_amount-being_built.materials[M]*linked_lathe.mat_efficiency))
-								if("$phoron")
-									linked_lathe.phoron_amount = max(0, (linked_lathe.phoron_amount-being_built.materials[M]*linked_lathe.mat_efficiency))
+								if("$plasma")
+									linked_lathe.plasma_amount = max(0, (linked_lathe.plasma_amount-being_built.materials[M]*linked_lathe.mat_efficiency))
 								if("$uranium")
 									linked_lathe.uranium_amount = max(0, (linked_lathe.uranium_amount-being_built.materials[M]*linked_lathe.mat_efficiency))
 								if("$diamond")
@@ -451,8 +451,8 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 					res_amount = "gold_amount"
 				if("silver")
 					res_amount = "silver_amount"
-				if("phoron")
-					res_amount = "phoron_amount"
+				if("plasma")
+					res_amount = "plasma_amount"
 				if("uranium")
 					res_amount = "uranium_amount"
 				if("diamond")
@@ -791,8 +791,8 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 								if(D.materials[M]*linked_lathe.mat_efficiency > linked_lathe.gold_amount) check_materials = 0
 							if("$silver")
 								if(D.materials[M]*linked_lathe.mat_efficiency > linked_lathe.silver_amount) check_materials = 0
-							if("$phoron")
-								if(D.materials[M]*linked_lathe.mat_efficiency > linked_lathe.phoron_amount) check_materials = 0
+							if("$plasma")
+								if(D.materials[M]*linked_lathe.mat_efficiency > linked_lathe.plasma_amount) check_materials = 0
 							if("$uranium")
 								if(D.materials[M]*linked_lathe.mat_efficiency > linked_lathe.uranium_amount) check_materials = 0
 							if("$diamond")
@@ -814,7 +814,7 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 			dat += "<A href='?src=\ref[src];menu=3.1'>Protolathe Menu</A><HR>"
 			dat += "Material Storage<BR><HR>"
 			dat += "<UL>"
-			for(var/M in list(DEFAULT_WALL_MATERIAL, "glass", "gold", "silver", "phoron", "uranium", "diamond"))
+			for(var/M in list(DEFAULT_WALL_MATERIAL, "glass", "gold", "silver", "plasma", "uranium", "diamond"))
 				var/amount
 				var/sheetsize = 2000
 				switch(M)
@@ -828,8 +828,8 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 						amount = linked_lathe.gold_amount
 					if("silver")
 						amount = linked_lathe.silver_amount
-					if("phoron")
-						amount = linked_lathe.phoron_amount
+					if("plasma")
+						amount = linked_lathe.plasma_amount
 					if("uranium")
 						amount = linked_lathe.uranium_amount
 					if("diamond")

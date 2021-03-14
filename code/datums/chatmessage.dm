@@ -69,6 +69,7 @@
 	generate_image(text, target, owner, lifespan, italics, size)
 	sleep(lifespan)
 	end_of_life()
+	//TODO: either implement a way to adjust the timeout, or delete the timeout-changing behavior entirely
 	sleep(10)
 	qdel(src)
 

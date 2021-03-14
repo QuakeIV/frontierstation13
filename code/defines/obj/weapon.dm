@@ -36,7 +36,7 @@
 	throw_range = 20
 
 /obj/item/weapon/soap/nanotrasen
-	desc = "A Nanotrasen brand bar of soap. Smells of phoron."
+	desc = "A Nanotrasen brand bar of soap. Smells of plasma."
 	icon_state = "soapnt"
 
 /obj/item/weapon/soap/deluxe
@@ -598,4 +598,4 @@
 	desc = "Instant research tool. For testing purposes only."
 	icon = 'icons/obj/stock_parts.dmi'
 	icon_state = "smes_coil"
-	origin_tech = "materials=19;programming=19;magnets=19;powerstorage=19;bluespace=19;combat=19;biotech=19;syndicate=19;phorontech=19;engineering=19"
+	origin_tech = "materials=19;programming=19;magnets=19;powerstorage=19;bluespace=19;combat=19;biotech=19;syndicate=19;plasmatech=19;engineering=19"

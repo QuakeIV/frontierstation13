@@ -413,31 +413,31 @@
 	glasstype = /obj/item/stack/material/glass
 
 
-/obj/structure/window/phoronbasic
-	name = "phoron window"
-	desc = "A phoron-glass alloy window. It looks insanely tough to break. It appears it's also insanely tough to burn through."
-	basestate = "phoronwindow"
-	icon_state = "phoronwindow"
-	shardtype = /obj/item/weapon/material/shard/phoron
-	glasstype = /obj/item/stack/material/glass/phoronglass
+/obj/structure/window/plasmabasic
+	name = "plasma window"
+	desc = "A plasma-glass alloy window. It looks insanely tough to break. It appears it's also insanely tough to burn through."
+	basestate = "plasmawindow"
+	icon_state = "plasmawindow"
+	shardtype = /obj/item/weapon/material/shard/plasma
+	glasstype = /obj/item/stack/material/glass/plasmaglass
 	maxhealth = 120
 
-/obj/structure/window/phoronbasic/fire_act(datum/gas_mixture/air, exposed_temperature, exposed_volume)
+/obj/structure/window/plasmabasic/fire_act(datum/gas_mixture/air, exposed_temperature, exposed_volume)
 	if(exposed_temperature > T0C + 32000)
 		hit(round(exposed_volume / 1000), 0)
 	..()
 
-/obj/structure/window/phoronreinforced
-	name = "reinforced phoron window"
-	desc = "A phoron-glass alloy window, with rods supporting it. It looks hopelessly tough to break. It also looks completely fireproof, considering how basic phoron windows are insanely fireproof."
-	basestate = "phoronrwindow"
-	icon_state = "phoronrwindow"
-	shardtype = /obj/item/weapon/material/shard/phoron
-	glasstype = /obj/item/stack/material/glass/phoronrglass
+/obj/structure/window/plasmareinforced
+	name = "reinforced plasma window"
+	desc = "A plasma-glass alloy window, with rods supporting it. It looks hopelessly tough to break. It also looks completely fireproof, considering how basic plasma windows are insanely fireproof."
+	basestate = "plasmarwindow"
+	icon_state = "plasmarwindow"
+	shardtype = /obj/item/weapon/material/shard/plasma
+	glasstype = /obj/item/stack/material/glass/plasmarglass
 	reinf = 1
 	maxhealth = 160
 
-/obj/structure/window/phoronreinforced/fire_act(datum/gas_mixture/air, exposed_temperature, exposed_volume)
+/obj/structure/window/plasmareinforced/fire_act(datum/gas_mixture/air, exposed_temperature, exposed_volume)
 	return
 
 /obj/structure/window/reinforced

@@ -90,13 +90,13 @@
 	fire_sound = 'sound/weapons/Laser.ogg'
 
 /obj/item/weapon/gun/energy/toxgun
-	name = "phoron pistol"
-	desc = "A specialized firearm designed to fire lethal bolts of phoron."
+	name = "plasma pistol"
+	desc = "A specialized firearm designed to fire lethal bolts of plasma."
 	icon_state = "toxgun"
 	fire_sound = 'sound/effects/stealthoff.ogg'
 	w_class = 3.0
-	origin_tech = "combat=5;phorontech=4"
-	projectile_type = /obj/item/projectile/energy/phoron
+	origin_tech = "combat=5;plasmatech=4"
+	projectile_type = /obj/item/projectile/energy/plasma
 
 /* Staves */
 

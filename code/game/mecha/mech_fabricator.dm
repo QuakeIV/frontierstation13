@@ -22,7 +22,7 @@
 										"gold"=0,
 										"silver"=0,
 										"diamond"=0,
-										"phoron"=0,
+										"plasma"=0,
 										"uranium"=0,
 										)
 	var/res_max_amount = 200000
@@ -729,8 +729,8 @@
 			type = /obj/item/stack/material/silver
 		if("diamond")
 			type = /obj/item/stack/material/diamond
-		if("phoron")
-			type = /obj/item/stack/material/phoron
+		if("plasma")
+			type = /obj/item/stack/material/plasma
 		if("uranium")
 			type = /obj/item/stack/material/uranium
 		else
@@ -780,9 +780,9 @@
 			if(src.resources["glass"] >= 3750)
 				var/obj/item/stack/material/glass/G = new /obj/item/stack/material/glass(src.loc)
 				G.amount = round(src.resources["glass"] / G.perunit)
-			if(src.resources["phoron"] >= 2000)
-				var/obj/item/stack/material/phoron/G = new /obj/item/stack/material/phoron(src.loc)
-				G.amount = round(src.resources["phoron"] / G.perunit)
+			if(src.resources["plasma"] >= 2000)
+				var/obj/item/stack/material/plasma/G = new /obj/item/stack/material/plasma(src.loc)
+				G.amount = round(src.resources["plasma"] / G.perunit)
 			if(src.resources["silver"] >= 2000)
 				var/obj/item/stack/material/silver/G = new /obj/item/stack/material/silver(src.loc)
 				G.amount = round(src.resources["silver"] / G.perunit)
@@ -813,8 +813,8 @@
 			material = "silver"
 		if(/obj/item/stack/material/diamond)
 			material = "diamond"
-		if(/obj/item/stack/material/phoron)
-			material = "phoron"
+		if(/obj/item/stack/material/plasma)
+			material = "plasma"
 		if(/obj/item/stack/material/steel)
 			material = DEFAULT_WALL_MATERIAL
 		if(/obj/item/stack/material/glass)

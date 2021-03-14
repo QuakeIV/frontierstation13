@@ -21,7 +21,7 @@ Note: Must be placed west/left of and R&D console to function.
 	var/g_amount = 0.0
 	var/gold_amount = 0.0
 	var/silver_amount = 0.0
-	var/phoron_amount = 0.0
+	var/plasma_amount = 0.0
 	var/uranium_amount = 0.0
 	var/diamond_amount = 0.0
 
@@ -40,7 +40,7 @@ Note: Must be placed west/left of and R&D console to function.
 	RefreshParts()
 
 /obj/machinery/r_n_d/protolathe/proc/TotalMaterials() //returns the total of all the stored materials. Makes code neater.
-	return m_amount + g_amount + gold_amount + silver_amount + phoron_amount + uranium_amount + diamond_amount
+	return m_amount + g_amount + gold_amount + silver_amount + plasma_amount + uranium_amount + diamond_amount
 
 /obj/machinery/r_n_d/protolathe/RefreshParts()
 	var/T = 0
@@ -68,9 +68,9 @@ Note: Must be placed west/left of and R&D console to function.
 	if(g_amount >= 3750)
 		var/obj/item/stack/material/glass/G = new /obj/item/stack/material/glass(loc)
 		G.amount = round(g_amount / G.perunit)
-	if(phoron_amount >= 2000)
-		var/obj/item/stack/material/phoron/G = new /obj/item/stack/material/phoron(loc)
-		G.amount = round(phoron_amount / G.perunit)
+	if(plasma_amount >= 2000)
+		var/obj/item/stack/material/plasma/G = new /obj/item/stack/material/plasma(loc)
+		G.amount = round(plasma_amount / G.perunit)
 	if(silver_amount >= 2000)
 		var/obj/item/stack/material/silver/G = new /obj/item/stack/material/silver(loc)
 		G.amount = round(silver_amount / G.perunit)
@@ -159,8 +159,8 @@ Note: Must be placed west/left of and R&D console to function.
 					gold_amount += amount_to_add
 				if("silver")
 					silver_amount += amount_to_add
-				if("phoron")
-					phoron_amount += amount_to_add
+				if("plasma")
+					plasma_amount += amount_to_add
 				if("uranium")
 					uranium_amount += amount_to_add
 				if("diamond")

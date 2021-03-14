@@ -106,7 +106,7 @@ client/proc/Test_ZAS_Connection(var/turf/simulated/T as turf)
 		client << "<u>Zone Air Contents</u>"
 		client << "Oxygen: [air.oxygen]"
 		client << "Nitrogen: [air.nitrogen]"
-		client << "Phoron: [air.phoron]"
+		client << "Plasma: [air.plasma]"
 		client << "Carbon Dioxide: [air.carbon_dioxide]"
 		client << "Temperature: [air.temperature] K"
 		client << "Heat Energy: [air.temperature * air.heat_capacity()] J"

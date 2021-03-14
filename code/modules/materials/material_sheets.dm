@@ -108,10 +108,10 @@
 	icon_state = "sheet-uranium"
 	default_type = "uranium"
 
-/obj/item/stack/material/phoron
-	name = "solid phoron"
-	icon_state = "sheet-phoron"
-	default_type = "phoron"
+/obj/item/stack/material/plasma
+	name = "solid plasma"
+	icon_state = "sheet-plasma"
+	default_type = "plasma"
 
 /obj/item/stack/material/plastic
 	name = "plastic"
@@ -195,13 +195,13 @@
 	icon_state = "sheet-rglass"
 	default_type = "rglass"
 
-/obj/item/stack/material/glass/phoronglass
-	name = "phoron glass"
-	singular_name = "phoron glass sheet"
-	icon_state = "sheet-phoronglass"
+/obj/item/stack/material/glass/plasmaglass
+	name = "plasma glass"
+	singular_name = "plasma glass sheet"
+	icon_state = "sheet-plasmaglass"
 	default_type = "phglass"
 
-/obj/item/stack/material/glass/phoronrglass
-	name = "reinforced phoron glass"
-	icon_state = "sheet-phoronrglass"
+/obj/item/stack/material/glass/plasmarglass
+	name = "reinforced plasma glass"
+	icon_state = "sheet-plasmarglass"
 	default_type = "rphglass"

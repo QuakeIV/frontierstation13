@@ -981,11 +981,11 @@ But you can call procs that are of type /mob/living/carbon/human/proc/ for that 
 	for(var/obj/machinery/power/rad_collector/Rad in world)
 		if(Rad.anchored)
 			if(!Rad.P)
-				var/obj/item/weapon/tank/phoron/Phoron = new/obj/item/weapon/tank/phoron(Rad)
-				Phoron.air_contents.gas["phoron"] = 70
+				var/obj/item/weapon/tank/plasma/Plasma = new/obj/item/weapon/tank/plasma(Rad)
+				Plasma.air_contents.gas["plasma"] = 70
 				Rad.drainratio = 0
-				Rad.P = Phoron
-				Phoron.loc = Rad
+				Rad.P = Plasma
+				Plasma.loc = Rad
 
 			if(!Rad.active)
 				Rad.toggle_power()
@@ -1023,12 +1023,12 @@ But you can call procs that are of type /mob/living/carbon/human/proc/ for that 
 				Rad.anchored = 1
 				Rad.connect_to_network()
 
-				var/obj/item/weapon/tank/phoron/Phoron = new/obj/item/weapon/tank/phoron(Rad)
+				var/obj/item/weapon/tank/plasma/Plasma = new/obj/item/weapon/tank/plasma(Rad)
 
-				Phoron.air_contents.gas["phoron"] = 29.1154	//This is a full tank if you filled it from a canister
-				Rad.P = Phoron
+				Plasma.air_contents.gas["plasma"] = 29.1154	//This is a full tank if you filled it from a canister
+				Rad.P = Plasma
 
-				Phoron.loc = Rad
+				Plasma.loc = Rad
 
 				if(!Rad.active)
 					Rad.toggle_power()

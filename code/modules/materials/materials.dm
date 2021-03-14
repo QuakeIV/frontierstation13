@@ -267,34 +267,34 @@ var/list/name_to_material
 	sheet_singular_name = "ingot"
 	sheet_plural_name = "ingots"
 
-/material/phoron
-	name = "phoron"
-	stack_type = /obj/item/stack/material/phoron
-	ignition_point = PHORON_MINIMUM_BURN_TEMPERATURE
+/material/plasma
+	name = "plasma"
+	stack_type = /obj/item/stack/material/plasma
+	ignition_point = PLASMA_MINIMUM_BURN_TEMPERATURE
 	icon_base = "stone"
 	icon_colour = "#FC2BC5"
 	shard_type = SHARD_SHARD
 	hardness = 30
-	stack_origin_tech = "phorontech=2;materials=2"
+	stack_origin_tech = "plasmatech=2;materials=2"
 	door_icon_base = "stone"
 	sheet_singular_name = "crystal"
 	sheet_plural_name = "crystals"
 
 /*
 // Commenting this out while fires are so spectacularly lethal, as I can't seem to get this balanced appropriately.
-/material/phoron/combustion_effect(var/turf/T, var/temperature, var/effect_multiplier)
+/material/plasma/combustion_effect(var/turf/T, var/temperature, var/effect_multiplier)
 	if(isnull(ignition_point))
 		return 0
 	if(temperature < ignition_point)
 		return 0
-	var/totalPhoron = 0
+	var/totalPlasma = 0
 	for(var/turf/simulated/floor/target_tile in range(2,T))
-		var/phoronToDeduce = (temperature/30) * effect_multiplier
-		totalPhoron += phoronToDeduce
-		target_tile.assume_gas("phoron", phoronToDeduce, 200+T0C)
+		var/plasmaToDeduce = (temperature/30) * effect_multiplier
+		totalPlasma += plasmaToDeduce
+		target_tile.assume_gas("plasma", plasmaToDeduce, 200+T0C)
 		spawn (0)
 			target_tile.hotspot_expose(temperature, 400)
-	return round(totalPhoron/100)
+	return round(totalPlasma/100)
 */
 
 /material/stone
@@ -454,26 +454,26 @@ var/list/name_to_material
 	wire_product = null
 	rod_product = null
 
-/material/glass/phoron
+/material/glass/plasma
 	name = "phglass"
-	display_name = "phoron glass"
-	stack_type = /obj/item/stack/material/glass/phoronglass
+	display_name = "plasma glass"
+	stack_type = /obj/item/stack/material/glass/plasmaglass
 	flags = MATERIAL_BRITTLE
-	ignition_point = PHORON_MINIMUM_BURN_TEMPERATURE+300
-	integrity = 200 // idk why but phoron windows are strong, so.
+	ignition_point = PLASMA_MINIMUM_BURN_TEMPERATURE+300
+	integrity = 200 // idk why but plasma windows are strong, so.
 	icon_colour = "#FC2BC5"
-	stack_origin_tech = "materials=3;phorontech=2"
-	created_window = /obj/structure/window/phoronbasic
+	stack_origin_tech = "materials=3;plasmatech=2"
+	created_window = /obj/structure/window/plasmabasic
 	wire_product = null
-	rod_product = /obj/item/stack/material/glass/phoronrglass
+	rod_product = /obj/item/stack/material/glass/plasmarglass
 
-/material/glass/phoron/reinforced
+/material/glass/plasma/reinforced
 	name = "rphglass"
-	display_name = "reinforced phoron glass"
-	stack_type = /obj/item/stack/material/glass/phoronrglass
-	stack_origin_tech = "materials=4;phorontech=2"
+	display_name = "reinforced plasma glass"
+	stack_type = /obj/item/stack/material/glass/plasmarglass
+	stack_origin_tech = "materials=4;plasmatech=2"
 	composite_material = list() //todo
-	created_window = /obj/structure/window/phoronreinforced
+	created_window = /obj/structure/window/plasmareinforced
 	hardness = 40
 	rod_product = null
 
