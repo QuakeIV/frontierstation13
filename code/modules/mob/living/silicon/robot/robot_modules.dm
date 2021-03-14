@@ -183,7 +183,7 @@ var/global/list/robot_modules = list(
 /obj/item/weapon/robot_module/medical/surgeon
 	name = "surgeon robot module"
 	sprites = list(
-					"Default" = "RobotMedi",
+					"Default" = "robotMedi",
 					"Basic" = "Medbot",
 					"Standard" = "surgeon",
 					"Advanced Droid" = "droid-medical",
@@ -235,7 +235,7 @@ var/global/list/robot_modules = list(
 /obj/item/weapon/robot_module/medical/crisis
 	name = "crisis robot module"
 	sprites = list(
-					"Default" = "RobotMedi",
+					"Default" = "robotMedi",
 					"Basic" = "Medbot",
 					"Standard" = "surgeon",
 					"Advanced Droid" = "droid-medical",
@@ -302,7 +302,7 @@ var/global/list/robot_modules = list(
 	networks = list(NETWORK_ENGINEERING)
 	subsystems = list(/mob/living/silicon/proc/subsystem_power_monitor)
 	sprites = list(
-					"Default" = "RobotEngi",
+					"Default" = "robotEngi",
 					"Basic" = "Engineering",
 					"Antique" = "engineerrobot",
 					"Landmate" = "landmate",
@@ -416,7 +416,7 @@ var/global/list/robot_modules = list(
 
 /obj/item/weapon/robot_module/security/general
 	sprites = list(
-					"Default" = "RobotSecy",
+					"Default" = "robotSecy",
 					"Basic" = "secborg",
 					"Red Knight" = "Security",
 					"Black Knight" = "securityrobot",
@@ -452,7 +452,7 @@ var/global/list/robot_modules = list(
 	name = "janitorial robot module"
 	channels = list("Service" = 1)
 	sprites = list(
-					"Default" = "RobotJani",
+					"Default" = "robotJani",
 					"Basic" = "JanBot2",
 					"Mopbot"  = "janitorrobot",
 					"Mop Gear Rex" = "mopgearrex",
@@ -495,7 +495,7 @@ var/global/list/robot_modules = list(
 
 /obj/item/weapon/robot_module/clerical/butler
 	sprites = list(
-					"Default" = "RobotServ",
+					"Default" = "robotServ",
 					"Waitress" = "Service",
 					"Kent" = "toiletbot",
 					"Bro" = "Brobot",
@@ -540,7 +540,7 @@ var/global/list/robot_modules = list(
 /obj/item/weapon/robot_module/clerical/general
 	name = "clerical robot module"
 	sprites = list(
-					"Default" = "RobotServ",
+					"Default" = "robotServ",
 					"Waitress" = "Service",
 					"Kent" = "toiletbot",
 					"Bro" = "Brobot",
@@ -571,7 +571,7 @@ var/global/list/robot_modules = list(
 	channels = list("Supply" = 1)
 	networks = list(NETWORK_MINE)
 	sprites = list(
-					"Default" = "RobotMine",
+					"Default" = "robotMine",
 					"Basic" = "Miner_old",
 					"Advanced Droid" = "droid-miner",
 					"Treadhead" = "Miner",
@@ -598,7 +598,7 @@ var/global/list/robot_modules = list(
 	name = "research module"
 	channels = list("Science" = 1)
 	sprites = list(
-					"Default" = "RobotJani",
+					"Default" = "robotJani",
 					"Droid" = "droid-science",
 					"Drone" = "drone-science"
 					)
