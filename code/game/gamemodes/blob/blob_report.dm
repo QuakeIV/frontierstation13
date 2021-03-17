@@ -21,7 +21,7 @@
 			var/nukecode = "ERROR"
 			for(var/obj/machinery/nuclearbomb/bomb in machines)
 				if(bomb && bomb.r_code)
-					if(bomb.z in station_levels)
+					if(bomb.z in config.station_levels)
 						nukecode = bomb.r_code
 			interceptname = "Directive 7-12"
 			intercepttext += "<FONT size = 3><B>NanoTrasen Update</B>: Biohazard Alert.</FONT><HR>"
@@ -62,7 +62,7 @@
 
 	proc/count()
 		for(var/turf/T in world)
-			if(isNotStationLevel(T.z)
+			if(isNotStationLevel(T.z))
 				continue
 
 			if(istype(T,/turf/simulated/floor))

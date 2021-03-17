@@ -6,13 +6,13 @@ var/list/blob_cores = list()
 var/list/blob_nodes = list()
 
 
-/*/datum/game_mode/blob
+/datum/game_mode/blob
 	name = "blob"
 	config_tag = "blob"
 	required_players = 0
 
-	var/const/waittime_l = 1800 //lower bound on time before intercept arrives (in tenths of seconds)
-	var/const/waittime_h = 3600 //upper bound on time before intercept arrives (in tenths of seconds)
+	waittime_l = 1800 //lower bound on time before intercept arrives (in tenths of seconds)
+	waittime_h = 3600 //upper bound on time before intercept arrives (in tenths of seconds)
 
 	var/declared = 0
 	var/stage = 0
@@ -20,7 +20,7 @@ var/list/blob_nodes = list()
 	var/cores_to_spawn = 1
 	var/players_per_core = 16
 
-		//Controls expansion via game controller
+	//Controls expansion via game controller
 	var/autoexpand = 0
 	var/expanding = 0
 
@@ -42,9 +42,9 @@ var/list/blob_nodes = list()
 
 		spawn(rand(waittime_l, waittime_h))//3-5 minutes currently
 			message_admins("Blob spawned and expanding, report created")
-			if(!kill_air)
-				kill_air = 1
-				message_admins("Kill air has been set to true by Blob, testing to see how laggy it is without the extra processing from hullbreaches. Note: the blob is fireproof so plasma does not help anyways")
+			//if(!kill_air)
+			//	kill_air = 1
+			//	message_admins("Kill air has been set to true by Blob, testing to see how laggy it is without the extra processing from hullbreaches. Note: the blob is fireproof so plasma does not help anyways")
 
 			if(ticker && ticker.minds && ticker.minds.len)
 				var/player_based_cores = round(ticker.minds.len/players_per_core, 1)
@@ -108,7 +108,7 @@ var/list/blob_nodes = list()
 				return
 
 			if (1)
-				command_alert("Confirmed outbreak of level 5 biohazard aboard [station_name()]. All personnel must contain the outbreak.", "Biohazard Alert")
+				command_announcement.Announce("Confirmed outbreak of level 5 biohazard aboard [station_name()]. All personnel must contain the outbreak.", "Biohazard Alert")
 				for(var/mob/M in player_list)
 					if(!istype(M,/mob/new_player))
 						M << sound('sound/AI/outbreak5.ogg')
@@ -121,7 +121,7 @@ var/list/blob_nodes = list()
 
 			if (2)
 				if((blobs.len > blobnukecount) && (declared == 1))
-					command_alert("Uncontrolled spread of the biohazard onboard the station. We have issued directive 7-12 for [station_name()].  Any living Heads of Staff are ordered to enact directive 7-12 at any cost, a print out with detailed instructions has been sent to your communications computers.", "Biohazard Alert")
+					command_announcement.Announce("Uncontrolled spread of the biohazard onboard the station. We have issued directive 7-12 for [station_name()].  Any living Heads of Staff are ordered to enact directive 7-12 at any cost, a print out with detailed instructions has been sent to your communications computers.", "Biohazard Alert")
 					send_intercept(2)
 					declared = 2
 					spawn(20)
@@ -129,5 +129,3 @@ var/list/blob_nodes = list()
 				if(blobs.len > blobwincount)
 					stage = 3
 		return
-
-*/
