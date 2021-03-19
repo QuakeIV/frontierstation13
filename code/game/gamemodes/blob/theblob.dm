@@ -10,6 +10,7 @@
 	anchored = 1
 	var/active = 1
 	var/health = 30
+	var/max_health = 30
 	var/brute_resist = 4
 	var/fire_resist = 1
 	var/blob_type = "blob"
@@ -49,32 +50,31 @@
 		return
 
 
-	proc/Pulse(var/pulse = 0, var/origin_dir = 0)//Todo: Fix spaceblob expand
+	proc/Pulse(var/from = 0, var/list/pulsed = new/list())//Todo: Fix spaceblob expand
 		set background = 1
+		pulsed.Add(src) //we have just been pulsed, add to list
 		if(!istype(src,/obj/effect/blob/core) && !istype(src,/obj/effect/blob/node))//Ill put these in the children later
 			if(run_action())//If we can do something here then we dont need to pulse more
 				return
 
-		if(!istype(src,/obj/effect/blob/shield) && !istype(src,/obj/effect/blob/core) && !istype(src,/obj/effect/blob/node) && (pulse <= 2) && (prob(30)))
+		//TODO: figure out good way to get corners
+		if (!istype(src,/obj/effect/blob/shield) && istype(from, /obj/effect/blob/core) && prob(30))
 			change_to("Shield")
-			return
 
-		if(pulse > 20)	return//Inf loop check
 		//Looking for another blob to pulse
-		var/list/dirs = list(1,2,4,8)
-		dirs.Remove(origin_dir)//Dont pulse the guy who pulsed us
-		for(var/i = 1 to 4)
-			if(!dirs.len)	break
-			var/dirn = pick(dirs)
-			dirs.Remove(dirn)
-			var/turf/T = get_step(src, dirn)
+		var/list/dirs = list(NORTH,SOUTH,EAST,WEST)
+		for(var/i in dirs)
+			var/turf/T = get_step(src, i)
+			if (istype(T, /turf/space))
+				continue
 			var/obj/effect/blob/B = (locate(/obj/effect/blob) in T)
 			if(!B)
 				expand(T)//No blob here so try and expand
-				return
-			B.Pulse((pulse+1),get_dir(src.loc,T))
-			return
-		return
+			else
+				if (B in pulsed)
+					world << "skippidy doodle"
+					continue
+				B.Pulse(src, pulsed)
 
 
 	proc/run_action()
@@ -92,18 +92,8 @@
 			health -= 0.01 * temperature
 			update_icon()
 
-	proc/expand(var/turf/T = null)
-		if(!prob((health/30))*100)	return
-		if(!T)
-			var/list/dirs = list(1,2,4,8)
-			for(var/i = 1 to 4)
-				var/dirn = pick(dirs)
-				dirs.Remove(dirn)
-				T = get_step(src, dirn)
-				if(!(locate(/obj/effect/blob) in T))	break
-				else	T = null
-
-		if(!T)	return 0
+	proc/expand(var/turf/T)
+		if(!prob((health/max_health)*100))	return
 		var/obj/effect/blob/B = new /obj/effect/blob(src.loc, min(src.health, 30))
 		if(T.Enter(B,src))//Attempt to move into the tile
 			B.loc = T

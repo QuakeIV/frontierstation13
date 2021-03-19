@@ -74,7 +74,6 @@ var/list/blob_nodes = list()
 
 
 	proc/expandBlob()
-		world << "autoexpanding"
 		if(expanding)	return
 		if(!blobs.len)	return
 		expanding = 1
@@ -113,7 +112,7 @@ var/list/blob_nodes = list()
 				for(var/mob/M in player_list)
 					if(!istype(M,/mob/new_player))
 						M << sound('sound/AI/outbreak5.ogg')
-				//autoexpand = 0//No more extra pulses
+				autoexpand = 0//No more extra pulses
 				stage = -1
 				//next stage in 4-5 minutes
 				spawn(600*rand(4,5))
