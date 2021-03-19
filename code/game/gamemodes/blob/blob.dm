@@ -11,17 +11,17 @@ var/list/blob_nodes = list()
 	config_tag = "blob"
 	required_players = 0
 
-	waittime_l = 1800 //lower bound on time before intercept arrives (in tenths of seconds)
-	waittime_h = 3600 //upper bound on time before intercept arrives (in tenths of seconds)
+	waittime_l = 300 //lower bound on time before intercept arrives (in tenths of seconds) (originally 1800)
+	waittime_h = 600 //upper bound on time before intercept arrives (in tenths of seconds) (originally 3600)
 
 	var/declared = 0
 	var/stage = 0
 
-	var/cores_to_spawn = 1
+	var/cores_to_spawn = 3
 	var/players_per_core = 16
 
 	//Controls expansion via game controller
-	var/autoexpand = 0
+	var/autoexpand = 1
 	var/expanding = 0
 
 	var/blob_count = 0
@@ -67,13 +67,14 @@ var/list/blob_nodes = list()
 	process()
 		if(!declared)	return
 		stage()
-//		if(!autoexpand)	return
-//		spawn(0)
-//			expandBlob()
+		if(!autoexpand)	return
+		spawn(0)
+			expandBlob()
 		return
 
 
-	proc/expandBlob()//Currently disabled
+	proc/expandBlob()
+		world << "autoexpanding"
 		if(expanding)	return
 		if(!blobs.len)	return
 		expanding = 1
@@ -112,7 +113,7 @@ var/list/blob_nodes = list()
 				for(var/mob/M in player_list)
 					if(!istype(M,/mob/new_player))
 						M << sound('sound/AI/outbreak5.ogg')
-				autoexpand = 0//No more extra pulses
+				//autoexpand = 0//No more extra pulses
 				stage = -1
 				//next stage in 4-5 minutes
 				spawn(600*rand(4,5))

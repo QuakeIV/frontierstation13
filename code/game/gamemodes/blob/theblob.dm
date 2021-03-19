@@ -87,14 +87,13 @@
 			return 1
 		return 0
 
-/*	fire_act(datum/gas_mixture/air, temperature, volume) Blob is currently fireproof
+	fire_act(datum/gas_mixture/air, temperature, volume)
 		if(temperature > T0C+200)
 			health -= 0.01 * temperature
-			update()
-			*/
+			update_icon()
 
 	proc/expand(var/turf/T = null)
-		if(!prob(health))	return
+		if(!prob((health/30))*100)	return
 		if(!T)
 			var/list/dirs = list(1,2,4,8)
 			for(var/i = 1 to 4)
