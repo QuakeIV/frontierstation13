@@ -1,11 +1,13 @@
+//TODO: needs rework to work with new pulse code
+
 /proc/mini_blob_event()
 
 	var/turf/T = pick(blobstart)
 	var/obj/effect/blob/core/bl = new /obj/effect/blob/core(T, 200)
 	spawn(0)
-		bl.Life()
-		bl.Life()
-		bl.Life()
+		bl.Pulse()
+		bl.Pulse()
+		bl.Pulse()
 	blobevent = 1
 	spawn(0)
 		dotheblobbaby()
@@ -23,6 +25,6 @@
 				var/obj/effect/blob/B = pick(blob_cores)
 				if(isNotStationLevel(B.z))
 					continue
-				B.Life()
+				B.Pulse()
 		spawn(30)
 			dotheblobbaby()

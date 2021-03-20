@@ -31,5 +31,4 @@
 
 
 	run_action()
-		Pulse()
 		return 0

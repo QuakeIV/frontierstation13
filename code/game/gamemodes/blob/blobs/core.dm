@@ -31,7 +31,6 @@
 
 
 	run_action()
-		Pulse()
 		//TODO: should have the fragments in here somewhere (no idea why, but added a TODO to it to find it later)
 		return 1
 

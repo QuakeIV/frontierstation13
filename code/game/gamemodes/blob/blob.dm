@@ -11,8 +11,11 @@ var/list/blob_nodes = list()
 	config_tag = "blob"
 	required_players = 0
 
-	waittime_l = 300 //lower bound on time before intercept arrives (in tenths of seconds) (originally 1800)
-	waittime_h = 600 //upper bound on time before intercept arrives (in tenths of seconds) (originally 3600)
+	//TODO: re-add delay
+	waittime_l = 0 //300 //lower bound on time before intercept arrives (in tenths of seconds) (originally 1800)
+	waittime_h = 0 //600 //upper bound on time before intercept arrives (in tenths of seconds) (originally 3600)
+
+	var/current_blub_propogate = FALSE //toggle this off and on to track blob node graph traversal
 
 	var/declared = 0
 	var/stage = 0
@@ -22,11 +25,10 @@ var/list/blob_nodes = list()
 
 	//Controls expansion via game controller
 	var/autoexpand = 1
-	var/expanding = 0
 
 	var/blob_count = 0
-	var/blobnukecount = 300//Might be a bit low
-	var/blobwincount = 700//Still needs testing
+	var/blobnukecount = 2000 //(originally 300)
+	var/blobwincount = 5000  //(originally 700)
 
 
 	announce()
@@ -54,6 +56,7 @@ var/list/blob_nodes = list()
 			blobs = list()
 			for(var/i = 0 to cores_to_spawn)
 				var/turf/location = pick(blobstart)
+				message_admins("Blob core spawned ([location.x],[location.y],[location.z]) (<A HREF='?_src_=holder;adminplayerobservecoodjump=1;X=[location.x];Y=[location.y];Z=[location.z]'>JMP</a>)")
 				if(location && !locate(/obj/effect/blob in location))
 					blobstart -= location
 					new/obj/effect/blob/core(location)
@@ -65,28 +68,28 @@ var/list/blob_nodes = list()
 
 
 	process()
+		//expand blub, put in event code so that it can easily be fully turned off if needed
+		//TODO: confirm this can actually be turned off
+		expandBlob()
+
 		if(!declared)	return
 		stage()
 		if(!autoexpand)	return
-		spawn(0)
-			expandBlob()
+		//extra blub expansion early-round
+		expandBlob()
 		return
 
 
 	proc/expandBlob()
-		if(expanding)	return
-		if(!blobs.len)	return
-		expanding = 1
+		if(!blob_cores.len)	return
 
-		for(var/i = 1 to 2)
-			sleep(-1)
-			if(!blobs.len)	break
-			var/obj/effect/blob/B = pick(blobs)
-			if(isNotStationLevel(B.z))
+		for(var/obj/effect/blob/C in blob_cores)
+			if(isNotStationLevel(C.z))
 				continue
-			B.Life()
+			C.Pulse(current_blub_propogate)
 
-		expanding = 0
+		// toggle propogation tracking variable so that next expansion does something
+		current_blub_propogate = !current_blub_propogate
 		return
 
 

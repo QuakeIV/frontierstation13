@@ -1,4 +1,7 @@
-//I will need to recode parts of this but I am way too tired atm
+
+
+//needed to track blob graph traversal, dont go to a node that matches your 'propogate' flag, and toggle propogate every tick
+
 /obj/effect/blob
 	name = "blob"
 	icon = 'icons/mob/blob.dmi'
@@ -14,6 +17,13 @@
 	var/brute_resist = 4
 	var/fire_resist = 1
 	var/blob_type = "blob"
+
+	//blob graph data
+	var/propogation = FALSE //if someone else is different from us, pulse them
+	var/obj/effect/blob/north = null
+	var/obj/effect/blob/south = null
+	var/obj/effect/blob/east  = null
+	var/obj/effect/blob/west  = null
 	/*Types
 	Blob
 	Node
@@ -26,7 +36,6 @@
 	New(loc, var/h = 30)
 		blobs += src
 		src.health = h
-		src.set_dir(pick(1,2,4,8))
 		src.update_icon()
 		..(loc)
 		return
@@ -44,65 +53,75 @@
 		return 0
 
 
-	process()
-		spawn(-1)
-			Life()
+	proc/Pulse(var/list/p = FALSE)
+		propogation = p //update propogation to latest
+
+		run_action()
+
+		//TODO: move this into an oview call from core, let core manage giving itself shield blubs
+		//if (!istype(src,/obj/effect/blob/shield) && istype(from, /obj/effect/blob/core) && prob(30))
+			//change_to("Shield")
+
+		//Looking for another blob to pulse
+
+		//NORTH
+		if (!north)
+			north = poke_dir(NORTH)
+		else if (north.propogation != propogation)
+			north.Pulse(p)
+
+		//SOUTH
+		if (!south)
+			south = poke_dir(SOUTH)
+		else if (south.propogation != propogation)
+			south.Pulse(p)
+
+		//EAST
+		if (!east)
+			east = poke_dir(EAST)
+		else if (east.propogation != propogation)
+			east.Pulse(p)
+
+		//WEST
+		if (!west)
+			west = poke_dir(WEST)
+		else if (west.propogation != propogation)
+			west.Pulse(p)
+
 		return
 
 
-	proc/Pulse(var/from = 0, var/list/pulsed = new/list())//Todo: Fix spaceblob expand
-		set background = 1
-		pulsed.Add(src) //we have just been pulsed, add to list
-		if(!istype(src,/obj/effect/blob/core) && !istype(src,/obj/effect/blob/node))//Ill put these in the children later
-			if(run_action())//If we can do something here then we dont need to pulse more
-				return
+	// inspect a given direction, try to expand if given the chance
+	proc/poke_dir(var/d)
+		var/turf/T = get_step(src.loc, d)
+		if (istype(T, /turf/space))
+			//TODO: turn into space blocking tile if we arent already (override this in shield/wall blob so it doesnt bother trying to transform probably)
+			return null
+		var/obj/effect/blob/B = (locate(/obj/effect/blob) in T)
+		if(!B)
+			//No blob here so try and expand
+			if(!prob((health/max_health)*10))	return null // 10% chance to expand each tick
+			for(var/atom/A in T)//Hit everything in the turf
+				A.blob_act()
 
-		//TODO: figure out good way to get corners
-		if (!istype(src,/obj/effect/blob/shield) && istype(from, /obj/effect/blob/core) && prob(30))
-			change_to("Shield")
-
-		//Looking for another blob to pulse
-		var/list/dirs = list(NORTH,SOUTH,EAST,WEST)
-		for(var/i in dirs)
-			var/turf/T = get_step(src, i)
-			if (istype(T, /turf/space))
-				continue
-			var/obj/effect/blob/B = (locate(/obj/effect/blob) in T)
-			if(!B)
-				expand(T)//No blob here so try and expand
+			B = new /obj/effect/blob(src.loc, min(src.health, 30))
+			if(T.Enter(B,src))//Attempt to move into the tile
+				B.loc = T
+				playsound(B.loc, 'sound/effects/splat.ogg', 50, 1)
 			else
-				if (B in pulsed)
-					world << "skippidy doodle"
-					continue
-				B.Pulse(src, pulsed)
-
+				T.blob_act() //If we cant move in hit the turf
+				qdel(B)
+				return null
+		return B
 
 	proc/run_action()
-		return 0
-
-
-	proc/Life()
-		update_icon()
-		if(run_action())
-			return 1
 		return 0
 
 	fire_act(datum/gas_mixture/air, temperature, volume)
 		if(temperature > T0C+200)
 			health -= 0.01 * temperature
 			update_icon()
-
-	proc/expand(var/turf/T)
-		if(!prob((health/max_health)*100))	return
-		var/obj/effect/blob/B = new /obj/effect/blob(src.loc, min(src.health, 30))
-		if(T.Enter(B,src))//Attempt to move into the tile
-			B.loc = T
-		else
-			T.blob_act()//If we cant move in hit the turf
-			qdel(B)
-		for(var/atom/A in T)//Hit everything in the turf
-			A.blob_act()
-		return 1
+		return
 
 
 	ex_act(severity)
@@ -125,7 +144,7 @@
 			playsound(src.loc, 'sound/effects/splat.ogg', 50, 1)
 			qdel(src)
 			return
-		if(health <= 15)
+		if(health <= max_health/2)
 			icon_state = "blob_damaged"
 			return
 //		if(health <= 20)
@@ -184,7 +203,6 @@
 
 	New(loc, var/h = 10)
 		src.health = h
-		src.set_dir(pick(1,2,4,8))
 		src.update_idle()
 
 
@@ -202,9 +220,8 @@
 
 
 	Destroy()
-		var/obj/effect/blob/B = new /obj/effect/blob( src.loc )
-		spawn(30)
-			B.Life()
+		//TODO: the fuck does this even do
+		new /obj/effect/blob( src.loc )
 		..()
 
 
