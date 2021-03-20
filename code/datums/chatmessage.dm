@@ -123,15 +123,16 @@
 	// Translate any existing messages upwards, apply exponential decay factors to timers
 	message_loc = target
 	if (owned_by.seen_messages)
-		var/idx = 1
+		//var/idx = 1 //TODO: part of remaining time
 		var/combined_height = approx_lines
 		for(var/msg in owned_by.seen_messages[message_loc])
 			var/datum/chatmessage/m = msg
 			animate(m.message, pixel_y = m.message.pixel_y + mheight, time = CHAT_MESSAGE_SPAWN_TIME)
 			combined_height += m.approx_lines
-			var/sched_remaining = m.scheduled_destruction - world.time
-			if (!m.eol_complete)
-				var/remaining_time = (sched_remaining) * (CHAT_MESSAGE_EXP_DECAY ** idx++) * (CHAT_MESSAGE_HEIGHT_DECAY ** combined_height)
+			//TODO: make remaining time possible to modify? seems totally pointless the messages go away fairly quickly regardless
+			//var/sched_remaining = m.scheduled_destruction - world.time
+			//if (!m.eol_complete)
+			//	var/remaining_time = (sched_remaining) * (CHAT_MESSAGE_EXP_DECAY ** idx++) * (CHAT_MESSAGE_HEIGHT_DECAY ** combined_height)
 
 	// Reset z index if relevant
 	if (current_z_idx >= CHAT_LAYER_MAX_Z)
