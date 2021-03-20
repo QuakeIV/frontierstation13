@@ -22,6 +22,23 @@
 		return
 
 
+	// special pulse behavior for core, which will drive other blubs
+	// any pulsed blob will add additional pulse-able blobs into the unpulsed blobs list, to be iterated over
+	// this logic exists to flatten out the recursion so that we dont hit the recursion limiter in byond (honestly probably more effecient anyways, maybe not though)
+	Pulse(var/p)
+		unpulsed_blobs = new/list()
+		..() //call parent version of function on self to populate initial list
+
+		while (unpulsed_blobs.len)
+			var/derp = unpulsed_blobs.len
+			var/obj/effect/blob/B = unpulsed_blobs[unpulsed_blobs.len]
+			unpulsed_blobs.Remove(B)
+			world << "before " << derp << "after" << unpulsed_blobs.len
+			B.Pulse(p)
+
+
+
+
 	update_icon()
 		if(health <= 0)
 			playsound(src.loc, 'sound/effects/splat.ogg', 50, 1)

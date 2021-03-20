@@ -9,7 +9,7 @@
 	health = 60
 	max_health = 60
 	brute_resist = 1
-	fire_resist = 2
+	fire_resist = 5
 
 
 	update_icon()

@@ -1,6 +1,7 @@
 
 
-//needed to track blob graph traversal, dont go to a node that matches your 'propogate' flag, and toggle propogate every tick
+//used for graph traversals
+/var/list/unpulsed_blobs
 
 /obj/effect/blob
 	name = "blob"
@@ -17,6 +18,8 @@
 	var/brute_resist = 4
 	var/fire_resist = 1
 	var/blob_type = "blob"
+
+	var/adjacent_to_space = FALSE
 
 	//blob graph data
 	var/propogation = FALSE //if someone else is different from us, pulse them
@@ -53,6 +56,12 @@
 		return 0
 
 
+	process()
+		..()
+		//TODO: add healing here if this actually fires
+		world << "proc"
+
+
 	proc/Pulse(var/list/p = FALSE)
 		propogation = p //update propogation to latest
 
@@ -62,31 +71,37 @@
 		//if (!istype(src,/obj/effect/blob/shield) && istype(from, /obj/effect/blob/core) && prob(30))
 			//change_to("Shield")
 
+		//check if we should turn into a wall (re-set every round and try to disprove
+		adjacent_to_space = FALSE
+
 		//Looking for another blob to pulse
 
 		//NORTH
 		if (!north)
 			north = poke_dir(NORTH)
 		else if (north.propogation != propogation)
-			north.Pulse(p)
+			unpulsed_blobs.Add(north) //add to list to be pulsed by parent
 
 		//SOUTH
 		if (!south)
 			south = poke_dir(SOUTH)
 		else if (south.propogation != propogation)
-			south.Pulse(p)
+			unpulsed_blobs.Add(south)
 
 		//EAST
 		if (!east)
 			east = poke_dir(EAST)
 		else if (east.propogation != propogation)
-			east.Pulse(p)
+			unpulsed_blobs.Add(east)
 
 		//WEST
 		if (!west)
 			west = poke_dir(WEST)
 		else if (west.propogation != propogation)
-			west.Pulse(p)
+			unpulsed_blobs.Add(west)
+
+
+		//check if we are adjacent to space, if so turn into wall if we arent already
 
 		return
 
@@ -95,7 +110,7 @@
 	proc/poke_dir(var/d)
 		var/turf/T = get_step(src.loc, d)
 		if (istype(T, /turf/space))
-			//TODO: turn into space blocking tile if we arent already (override this in shield/wall blob so it doesnt bother trying to transform probably)
+			adjacent_to_space = TRUE
 			return null
 		var/obj/effect/blob/B = (locate(/obj/effect/blob) in T)
 		if(!B)

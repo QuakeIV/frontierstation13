@@ -340,6 +340,8 @@
 /obj/machinery/door/blob_act()
 	//TODO: balance
 	take_damage(rand(5, 10))
+	if (health <= 0)
+		qdel(src)
 
 
 /obj/machinery/door/emp_act(severity)
