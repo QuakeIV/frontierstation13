@@ -1,4 +1,4 @@
-/obj/effect/blob/shield
+/obj/effect/blob/wall
 	name = "strong blob"
 	icon = 'icons/mob/blob.dmi'
 	icon_state = "blob_idle"
@@ -7,8 +7,9 @@
 	opacity = 0
 	anchored = 1
 	health = 60
+	max_health = 60
 	brute_resist = 1
-	fire_resist = 2
+	fire_resist = 5
 
 
 	update_icon()

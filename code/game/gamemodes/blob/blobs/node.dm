@@ -3,6 +3,7 @@
 	icon = 'icons/mob/blob.dmi'
 	icon_state = "blob_node"
 	health = 100
+	max_health = 100
 	brute_resist = 1
 	fire_resist = 2
 
@@ -30,5 +31,4 @@
 
 
 	run_action()
-		Pulse(0,0)
 		return 0

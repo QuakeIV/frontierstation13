@@ -76,7 +76,7 @@
 	if(air_doors_activated)
 		air_doors_activated = 0
 		for(var/obj/machinery/door/firedoor/E in all_doors)
-			if(!E.blocked)
+			if(!E.blocked && !E.lockdown) //if a door thinks it needs to lockdown, keep it closed
 				if(E.operating)
 					E.nextstate = OPEN
 				else if(E.density)
@@ -103,7 +103,7 @@
 		updateicon()
 		mouse_opacity = 0
 		for(var/obj/machinery/door/firedoor/D in all_doors)
-			if(!D.blocked)
+			if(!D.blocked && !D.lockdown)
 				if(D.operating)
 					D.nextstate = OPEN
 				else if(D.density)
@@ -135,7 +135,7 @@
 		mouse_opacity = 0
 		updateicon()
 		for(var/obj/machinery/door/firedoor/D in src)
-			if(!D.blocked)
+			if(!D.blocked && !D.lockdown)
 				if(D.operating)
 					D.nextstate = OPEN
 				else if(D.density)

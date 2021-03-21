@@ -1,3 +1,5 @@
+// TODO: this file requires some rework to track the new pulse system
+
 /datum/event/blob
 	announceWhen	= 12
 	endWhen			= 120
@@ -16,12 +18,11 @@
 		return
 	Blob = new /obj/effect/blob/core(T, 120)
 	for(var/i = 1; i < rand(3, 4), i++)
-		Blob.process()
+		Blob.Pulse()
 
 
 /datum/event/blob/tick()
 	if(!Blob)
 		kill()
 		return
-	if(IsMultiple(activeFor, 3))
-		Blob.process()
+	Blob.Pulse()

@@ -53,7 +53,7 @@
 	consume(user)
 	return 1
 
-/obj/singularity/blob_act(severity)
+/obj/singularity/blob_act()
 	return
 
 /obj/singularity/ex_act(severity)

@@ -1,4 +1,13 @@
-//I will need to recode parts of this but I am way too tired atm
+
+#define BLOB_TYPE_NORMAL  1
+#define BLOB_TYPE_NODE    2
+#define BLOB_TYPE_CORE    3
+#define BLOB_TYPE_FACTORY 4
+#define BLOB_TYPE_WALL    5
+
+//used for graph traversals
+/var/list/unpulsed_blobs
+
 /obj/effect/blob
 	name = "blob"
 	icon = 'icons/mob/blob.dmi'
@@ -10,110 +19,179 @@
 	anchored = 1
 	var/active = 1
 	var/health = 30
+	var/max_health = 30
 	var/brute_resist = 4
 	var/fire_resist = 1
-	var/blob_type = "blob"
+	var/blob_type = BLOB_TYPE_NORMAL
+
+	var/adjacent_to_space = FALSE
+
+	//blob graph data
+	var/propogation = FALSE //if someone else is different from us, pulse them
+	var/obj/effect/blob/north = null
+	var/obj/effect/blob/south = null
+	var/obj/effect/blob/east  = null
+	var/obj/effect/blob/west  = null
 	/*Types
 	Blob
 	Node
 	Core
 	Factory
-	Shield
+	Wall
 		*/
 
 
 	New(loc, var/h = 30)
 		blobs += src
 		src.health = h
-		src.set_dir(pick(1,2,4,8))
 		src.update_icon()
+		//check space adjacency
+		check_space()
 		..(loc)
 		return
 
 
 	Destroy()
 		blobs -= src
+		unpulsed_blobs -= src
+
+		if (src in unpulsed_blobs)
+			message_admins("blob made it into unpulsed_blobs multiple times, report")
+
+		if (north)
+			north.south = null
+			north = null
+
+		if (south)
+			south.north = null
+			south = null
+
+		if (east)
+			east.west = null
+			east = null
+
+		if (west)
+			west.east = null
+			west = null
 		..()
-		return
+
+		return 0
 
 
 	CanPass(atom/movable/mover, turf/target, height=0, air_group=0)
-		if(air_group || (height==0))	return 1
+		if (air_group && !adjacent_to_space)
+			return 1
+		else
+			return 0
+		if(height==0)
+			return 1
 		if(istype(mover) && mover.checkpass(PASSBLOB))	return 1
 		return 0
 
 
-	process()
-		spawn(-1)
-			Life()
+	blob_act() //blobs dont get hurt by blobs
+		message_admins("blob hit by other blob, report")
 		return
 
 
-	proc/Pulse(var/pulse = 0, var/origin_dir = 0)//Todo: Fix spaceblob expand
-		set background = 1
-		if(!istype(src,/obj/effect/blob/core) && !istype(src,/obj/effect/blob/node))//Ill put these in the children later
-			if(run_action())//If we can do something here then we dont need to pulse more
-				return
+	proc/check_space()
+		adjacent_to_space = FALSE
+		for (var/d in alldirs)
+			if (istype(get_step(src.loc, d), /turf/space))
+				adjacent_to_space = TRUE
 
-		if(!istype(src,/obj/effect/blob/shield) && !istype(src,/obj/effect/blob/core) && !istype(src,/obj/effect/blob/node) && (pulse <= 2) && (prob(30)))
-			change_to("Shield")
+
+	proc/Pulse(var/list/p = FALSE)
+		//are we toggling for the first time this tick?
+		if (p != propogation)
+			//check if we are adjacent to space
+			check_space()
+			//heal (total heal time of 100 seconds effectively, currently) TODO: balance
+			health = max(health + max_health/1000, max_health)
+
+		propogation = p //update propogation to latest
+
+		run_action()
+
+		//TODO: this appears to be a matter of garbage collection needing help for some reason, this needs investigation
+		if (!src.loc)
+			qdel(src)
 			return
 
-		if(pulse > 20)	return//Inf loop check
+		//TODO: move this into an oview call from core, let core manage giving itself shield blubs
+		//if (!istype(src,/obj/effect/blob/shield) && istype(from, /obj/effect/blob/core) && prob(30))
+			//change_to(BLOB_TYPE_WALL)
+
 		//Looking for another blob to pulse
-		var/list/dirs = list(1,2,4,8)
-		dirs.Remove(origin_dir)//Dont pulse the guy who pulsed us
-		for(var/i = 1 to 4)
-			if(!dirs.len)	break
-			var/dirn = pick(dirs)
-			dirs.Remove(dirn)
-			var/turf/T = get_step(src, dirn)
-			var/obj/effect/blob/B = (locate(/obj/effect/blob) in T)
-			if(!B)
-				expand(T)//No blob here so try and expand
-				return
-			B.Pulse((pulse+1),get_dir(src.loc,T))
-			return
+
+		//NORTH
+		if (!north)
+			north = poke_dir(NORTH)
+		else if (north.propogation != propogation)
+			unpulsed_blobs.Add(north) //add to list to be pulsed by parent
+
+		//SOUTH
+		if (!south)
+			south = poke_dir(SOUTH)
+		else if (south.propogation != propogation)
+			unpulsed_blobs.Add(south)
+
+		//EAST
+		if (!east)
+			east = poke_dir(EAST)
+		else if (east.propogation != propogation)
+			unpulsed_blobs.Add(east)
+
+		//WEST
+		if (!west)
+			west = poke_dir(WEST)
+		else if (west.propogation != propogation)
+			unpulsed_blobs.Add(west)
+
+
+		//check if we are adjacent to space, if so turn into wall if we arent already
+		if (adjacent_to_space && blob_type != BLOB_TYPE_WALL)
+			change_to(BLOB_TYPE_WALL)
+
 		return
 
+
+	// inspect a given direction, try to expand if given the chance
+	proc/poke_dir(var/d)
+		var/turf/T = get_step(src.loc, d)
+		if (istype(T, /turf/space))
+			return null
+		var/obj/effect/blob/B = (locate(/obj/effect/blob) in T)
+		if(!B)
+			//No blob here so try and expand
+			if(!prob((health/max_health)*10))	return null // 10% chance to expand each tick
+
+			B = new /obj/effect/blob(src.loc, min(src.health, 30))
+			if(T.Enter(B,src))//Attempt to move into the tile
+				for(var/atom/A in T)//Hit everything in the turf
+					A.blob_act()
+				B.loc = T
+				playsound(B.loc, 'sound/effects/splat.ogg', 50, 1)
+			else
+				T.blob_act() //If we cant move in hit the turf
+				for(var/atom/A in T)//Hit everything in the turf
+					A.blob_act()
+				if(T.Enter(B,src))//try again
+					B.loc = T
+					playsound(B.loc, 'sound/effects/splat.ogg', 50, 1)
+				else
+					qdel(B)
+				return null
+		return B
 
 	proc/run_action()
 		return 0
 
-
-	proc/Life()
-		update_icon()
-		if(run_action())
-			return 1
-		return 0
-
-/*	fire_act(datum/gas_mixture/air, temperature, volume) Blob is currently fireproof
+	fire_act(datum/gas_mixture/air, temperature, volume)
 		if(temperature > T0C+200)
 			health -= 0.01 * temperature
-			update()
-			*/
-
-	proc/expand(var/turf/T = null)
-		if(!prob(health))	return
-		if(!T)
-			var/list/dirs = list(1,2,4,8)
-			for(var/i = 1 to 4)
-				var/dirn = pick(dirs)
-				dirs.Remove(dirn)
-				T = get_step(src, dirn)
-				if(!(locate(/obj/effect/blob) in T))	break
-				else	T = null
-
-		if(!T)	return 0
-		var/obj/effect/blob/B = new /obj/effect/blob(src.loc, min(src.health, 30))
-		if(T.Enter(B,src))//Attempt to move into the tile
-			B.loc = T
-		else
-			T.blob_act()//If we cant move in hit the turf
-			qdel(B)
-		for(var/atom/A in T)//Hit everything in the turf
-			A.blob_act()
-		return 1
+			update_icon()
+		return
 
 
 	ex_act(severity)
@@ -136,7 +214,7 @@
 			playsound(src.loc, 'sound/effects/splat.ogg', 50, 1)
 			qdel(src)
 			return
-		if(health <= 15)
+		if(health <= max_health/2)
 			icon_state = "blob_damaged"
 			return
 //		if(health <= 20)
@@ -172,16 +250,17 @@
 		update_icon()
 		return
 
-	proc/change_to(var/type = "Normal")
+
+	proc/change_to(var/type = BLOB_TYPE_NORMAL)
 		switch(type)
-			if("Normal")
+			if(BLOB_TYPE_NORMAL)
 				new/obj/effect/blob(src.loc,src.health)
-			if("Node")
+			if(BLOB_TYPE_NODE)
 				new/obj/effect/blob/node(src.loc,src.health*2)
-			if("Factory")
+			if(BLOB_TYPE_FACTORY)
 				new/obj/effect/blob/factory(src.loc,src.health)
-			if("Shield")
-				new/obj/effect/blob/shield(src.loc,src.health*2)
+			if(BLOB_TYPE_WALL)
+				new/obj/effect/blob/wall(src.loc,src.health*2)
 		qdel(src)
 		return
 
@@ -195,7 +274,6 @@
 
 	New(loc, var/h = 10)
 		src.health = h
-		src.set_dir(pick(1,2,4,8))
 		src.update_idle()
 
 
@@ -213,9 +291,8 @@
 
 
 	Destroy()
-		var/obj/effect/blob/B = new /obj/effect/blob( src.loc )
-		spawn(30)
-			B.Life()
+		//TODO: the fuck does this even do
+		new /obj/effect/blob( src.loc )
 		..()
 
 

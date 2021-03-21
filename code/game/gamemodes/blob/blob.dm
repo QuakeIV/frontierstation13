@@ -6,27 +6,29 @@ var/list/blob_cores = list()
 var/list/blob_nodes = list()
 
 
-/*/datum/game_mode/blob
+/datum/game_mode/blob
 	name = "blob"
 	config_tag = "blob"
 	required_players = 0
 
-	var/const/waittime_l = 1800 //lower bound on time before intercept arrives (in tenths of seconds)
-	var/const/waittime_h = 3600 //upper bound on time before intercept arrives (in tenths of seconds)
+	//TODO: re-add delay
+	waittime_l = 1800 //300 //lower bound on time before intercept arrives (in tenths of seconds)
+	waittime_h = 3000 //600 //upper bound on time before intercept arrives (in tenths of seconds)
+
+	var/current_blub_propogate = FALSE //toggle this off and on to track blob node graph traversal
 
 	var/declared = 0
 	var/stage = 0
 
-	var/cores_to_spawn = 1
+	var/cores_to_spawn = 3
 	var/players_per_core = 16
 
-		//Controls expansion via game controller
-	var/autoexpand = 0
-	var/expanding = 0
+	//Controls expansion via game controller
+	var/autoexpand = 1
 
 	var/blob_count = 0
-	var/blobnukecount = 300//Might be a bit low
-	var/blobwincount = 700//Still needs testing
+	var/blobnukecount = 2000 //(originally 300)
+	var/blobwincount  = 7000  //(originally 700)
 
 
 	announce()
@@ -40,11 +42,8 @@ var/list/blob_nodes = list()
 			start_state = new /datum/station_state()
 			start_state.count()
 
-		spawn(rand(waittime_l, waittime_h))//3-5 minutes currently
+		spawn(rand(waittime_l, waittime_h)) //wait to spawn blub
 			message_admins("Blob spawned and expanding, report created")
-			if(!kill_air)
-				kill_air = 1
-				message_admins("Kill air has been set to true by Blob, testing to see how laggy it is without the extra processing from hullbreaches. Note: the blob is fireproof so plasma does not help anyways")
 
 			if(ticker && ticker.minds && ticker.minds.len)
 				var/player_based_cores = round(ticker.minds.len/players_per_core, 1)
@@ -54,6 +53,7 @@ var/list/blob_nodes = list()
 			blobs = list()
 			for(var/i = 0 to cores_to_spawn)
 				var/turf/location = pick(blobstart)
+				message_admins("Blob core spawned ([location.x],[location.y],[location.z]) (<A HREF='?_src_=holder;adminplayerobservecoodjump=1;X=[location.x];Y=[location.y];Z=[location.z]'>JMP</a>)")
 				if(location && !locate(/obj/effect/blob in location))
 					blobstart -= location
 					new/obj/effect/blob/core(location)
@@ -65,28 +65,28 @@ var/list/blob_nodes = list()
 
 
 	process()
+		//expand blub, put in event code so that it can easily be fully turned off if needed
+		//TODO: confirm this can actually be turned off
+		expandBlob()
+
 		if(!declared)	return
 		stage()
-//		if(!autoexpand)	return
-//		spawn(0)
-//			expandBlob()
+		if(!autoexpand)	return
+		//extra blub expansion early-round
+		expandBlob()
 		return
 
 
-	proc/expandBlob()//Currently disabled
-		if(expanding)	return
-		if(!blobs.len)	return
-		expanding = 1
+	proc/expandBlob()
+		if(!blob_cores.len)	return
 
-		for(var/i = 1 to 2)
-			sleep(-1)
-			if(!blobs.len)	break
-			var/obj/effect/blob/B = pick(blobs)
-			if(isNotStationLevel(B.z))
+		for(var/obj/effect/blob/C in blob_cores)
+			if(isNotStationLevel(C.z))
 				continue
-			B.Life()
+			C.Pulse(current_blub_propogate)
 
-		expanding = 0
+		// toggle propogation tracking variable so that next expansion does something
+		current_blub_propogate = !current_blub_propogate
 		return
 
 
@@ -108,7 +108,7 @@ var/list/blob_nodes = list()
 				return
 
 			if (1)
-				command_alert("Confirmed outbreak of level 5 biohazard aboard [station_name()]. All personnel must contain the outbreak.", "Biohazard Alert")
+				command_announcement.Announce("Confirmed outbreak of level 5 biohazard aboard [station_name()]. All personnel must contain the outbreak.", "Biohazard Alert")
 				for(var/mob/M in player_list)
 					if(!istype(M,/mob/new_player))
 						M << sound('sound/AI/outbreak5.ogg')
@@ -121,7 +121,7 @@ var/list/blob_nodes = list()
 
 			if (2)
 				if((blobs.len > blobnukecount) && (declared == 1))
-					command_alert("Uncontrolled spread of the biohazard onboard the station. We have issued directive 7-12 for [station_name()].  Any living Heads of Staff are ordered to enact directive 7-12 at any cost, a print out with detailed instructions has been sent to your communications computers.", "Biohazard Alert")
+					command_announcement.Announce("Uncontrolled spread of the biohazard onboard the station. We have issued directive 7-12 for [station_name()].  Any living Heads of Staff are ordered to enact directive 7-12 at any cost, a print out with detailed instructions has been sent to your communications computers.", "Biohazard Alert")
 					send_intercept(2)
 					declared = 2
 					spawn(20)
@@ -129,5 +129,3 @@ var/list/blob_nodes = list()
 				if(blobs.len > blobwincount)
 					stage = 3
 		return
-
-*/

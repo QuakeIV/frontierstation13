@@ -103,6 +103,9 @@
 	else
 		return 1
 
+/obj/machinery/door/window/blob_act()
+	shatter() //just instagib because windoors are tricky to handle and are just glass anyways
+
 /obj/machinery/door/window/open()
 	if (src.operating == 1) //doors can still open when emag-disabled
 		return 0

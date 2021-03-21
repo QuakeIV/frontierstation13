@@ -21,7 +21,7 @@
 	var/normalspeed = 1
 	var/heat_proof = 0 // For glass airlocks/opacity firedoors
 	var/air_properties_vary_with_direction = 0
-	var/maxhealth = 300
+	var/maxhealth = 100 // originally 300 (should be less than steel walls probably? (which is circa 150))
 	var/health
 	var/destroy_hits = 10 //How many strong hits it takes to destroy the door
 	var/min_force = 10 //minimum amount of force needed to damage the door with a melee weapon
@@ -338,9 +338,10 @@
 
 
 /obj/machinery/door/blob_act()
-	if(prob(40))
+	//TODO: balance
+	take_damage(rand(5, 10))
+	if (health <= 0)
 		qdel(src)
-	return
 
 
 /obj/machinery/door/emp_act(severity)

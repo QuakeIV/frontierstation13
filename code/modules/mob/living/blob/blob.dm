@@ -94,7 +94,7 @@
 	for(var/obj/effect/blob/factory/blob in orange(2))
 		usr << "There is a porus blob nearby, move more than 2 tiles away from it!"
 		creating_blob = 0
-	B.change_to("Node")
+	B.change_to(BLOB_TYPE_NODE)
 	src.dust()
 	return
 
@@ -131,7 +131,7 @@
 			usr << "There is another porous blob nearby, move away from it!"
 			creating_blob = 0
 			return
-	B.change_to("Factory")
+	B.change_to(BLOB_TYPE_FACTORY)
 	src.dust()
 	return
 
@@ -155,7 +155,7 @@
 		usr << "Unable to use this blob, find another one."
 		creating_blob = 0
 		return
-	B.change_to("Normal")
+	B.change_to(BLOB_TYPE_NORMAL)
 	src.dust()
 	return
 

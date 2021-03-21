@@ -3,6 +3,7 @@
 	icon = 'icons/mob/blob.dmi'
 	icon_state = "blob_core"
 	health = 200
+	max_health = 200
 	brute_resist = 2
 	fire_resist = 2
 
@@ -21,6 +22,23 @@
 		return
 
 
+	// special pulse behavior for core, which will drive other blubs
+	// any pulsed blob will add additional pulse-able blobs into the unpulsed blobs list, to be iterated over
+	// this logic exists to flatten out the recursion so that we dont hit the recursion limiter in byond (honestly probably more effecient anyways, maybe not though)
+	Pulse(var/p)
+		unpulsed_blobs = new/list()
+		..() //call parent version of function on self to populate initial list
+
+		while (unpulsed_blobs.len)
+			var/derp = unpulsed_blobs.len
+			var/obj/effect/blob/B = unpulsed_blobs[unpulsed_blobs.len]
+			unpulsed_blobs.Remove(B)
+			world << "before " << derp << "after " << unpulsed_blobs.len
+			B.Pulse(p)
+
+
+
+
 	update_icon()
 		if(health <= 0)
 			playsound(src.loc, 'sound/effects/splat.ogg', 50, 1)
@@ -30,11 +48,7 @@
 
 
 	run_action()
-		Pulse(0,1)
-		Pulse(0,2)
-		Pulse(0,4)
-		Pulse(0,8)
-		//Should have the fragments in here somewhere
+		//TODO: should have the fragments in here somewhere (no idea why, but added a TODO to it to find it later)
 		return 1
 
 
@@ -50,24 +64,3 @@
 				var/mob/living/blob/B = new/mob/living/blob(src.loc)
 				B.key = pick(candidates)
 				candidates -= B.key
-
-/*
-	Pulse(var/pulse = 0, var/origin_dir = 0)//Todo: Fix spaceblob expand
-		set background = 1
-		if(pulse > 20)	return
-		//Looking for another blob to pulse
-		var/list/dirs = list(1,2,4,8)
-		dirs.Remove(origin_dir)//Dont pulse the guy who pulsed us
-		for(var/i = 1 to 4)
-			if(!dirs.len)	break
-			var/dirn = pick(dirs)
-			dirs.Remove(dirn)
-			var/turf/T = get_step(src, dirn)
-			var/obj/effect/blob/B = (locate(/obj/effect/blob) in T)
-			if(!B)
-				expand(T)//No blob here so try and expand
-				return
-			B.Pulse((pulse+1),get_dir(src.loc,T))
-			return
-		return
-*/
