@@ -9,6 +9,7 @@
 #define FIREDOOR_ALERT_HOT      1
 #define FIREDOOR_ALERT_COLD     2
 // Not used #define FIREDOOR_ALERT_LOWPRESS 4
+#define FIREDOOR_ALERT_BLOB     8
 
 /obj/machinery/door/firedoor
 	name = "\improper Emergency Shutter"
@@ -49,7 +50,9 @@
 	// MUST be in same order as FIREDOOR_ALERT_*
 	var/list/ALERT_STATES=list(
 		"hot",
-		"cold"
+		"cold",
+		"press", //pressure
+		"hot", //blob TODO: replace with nicer thing?
 	)
 
 /obj/machinery/door/firedoor/New()
@@ -104,6 +107,9 @@
 			user << o
 			continue
 		var/celsius = convert_k2c(tile_info[index][1])
+
+		if (dir_alerts[index] & FIREDOOR_ALERT_BLOB)
+			o += "<span class='warning'><b>BLOB DETECTED</b></span> "
 		var/pressure = tile_info[index][2]
 		if(dir_alerts[index] & (FIREDOOR_ALERT_HOT|FIREDOOR_ALERT_COLD))
 			o += "<span class='warning'>"
@@ -283,8 +289,14 @@
 /obj/machinery/door/firedoor/process()
 	..()
 
-	if(density && next_process_time <= world.time)
-		next_process_time = world.time + 100		// 10 second delays between process updates
+	//independent blob detection and response logic
+	if (locate(/obj/effect/blob) in oview(1,src))
+		nextstate = CLOSED
+		close()
+		lockdown = 1
+
+	if(next_process_time <= world.time)
+		next_process_time = world.time + 100 // 10 second delays between process updates
 		var/changed = 0
 		lockdown=0
 		// Pressure alerts
@@ -303,11 +315,16 @@
 		var/old_alerts = dir_alerts
 		for(var/index = 1; index <= 4; index++)
 			var/list/tileinfo=tile_info[index]
+			var/alerts=0
+
+			// check for blub
+			if ((locate(/obj/effect/blob) in get_step(src.loc, cardinal[index])))
+				alerts |= FIREDOOR_ALERT_BLOB
+				lockdown = 1
+
 			if(tileinfo==null)
 				continue // Bad data.
 			var/celsius = convert_k2c(tileinfo[1])
-
-			var/alerts=0
 
 			// Temperatures
 			if(celsius >= FIREDOOR_MAX_TEMP)

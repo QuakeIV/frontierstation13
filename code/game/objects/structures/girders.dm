@@ -204,8 +204,7 @@
 	return ..()
 
 /obj/structure/girder/blob_act()
-	if(prob(40))
-		qdel(src)
+	qdel(src)
 
 
 /obj/structure/girder/ex_act(severity)

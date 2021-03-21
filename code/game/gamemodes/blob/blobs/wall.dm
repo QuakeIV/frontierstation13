@@ -1,4 +1,4 @@
-/obj/effect/blob/shield
+/obj/effect/blob/wall
 	name = "strong blob"
 	icon = 'icons/mob/blob.dmi'
 	icon_state = "blob_idle"

@@ -1,4 +1,9 @@
 
+#define BLOB_TYPE_NORMAL  1
+#define BLOB_TYPE_NODE    2
+#define BLOB_TYPE_CORE    3
+#define BLOB_TYPE_FACTORY 4
+#define BLOB_TYPE_WALL    5
 
 //used for graph traversals
 /var/list/unpulsed_blobs
@@ -17,7 +22,7 @@
 	var/max_health = 30
 	var/brute_resist = 4
 	var/fire_resist = 1
-	var/blob_type = "blob"
+	var/blob_type = BLOB_TYPE_NORMAL
 
 	var/adjacent_to_space = FALSE
 
@@ -32,7 +37,7 @@
 	Node
 	Core
 	Factory
-	Shield
+	Wall
 		*/
 
 
@@ -40,39 +45,82 @@
 		blobs += src
 		src.health = h
 		src.update_icon()
+		//check space adjacency
+		check_space()
 		..(loc)
 		return
 
 
 	Destroy()
 		blobs -= src
+		unpulsed_blobs -= src
+
+		if (src in unpulsed_blobs)
+			message_admins("blob made it into unpulsed_blobs multiple times, report")
+
+		if (north)
+			north.south = null
+			north = null
+
+		if (south)
+			south.north = null
+			south = null
+
+		if (east)
+			east.west = null
+			east = null
+
+		if (west)
+			west.east = null
+			west = null
 		..()
-		return
+
+		return 0
 
 
 	CanPass(atom/movable/mover, turf/target, height=0, air_group=0)
-		if(air_group || (height==0))	return 1
+		if (air_group && !adjacent_to_space)
+			return 1
+		else
+			return 0
+		if(height==0)
+			return 1
 		if(istype(mover) && mover.checkpass(PASSBLOB))	return 1
 		return 0
 
 
-	process()
-		..()
-		//TODO: add healing here if this actually fires
-		world << "proc"
+	blob_act() //blobs dont get hurt by blobs
+		message_admins("blob hit by other blob, report")
+		return
+
+
+	proc/check_space()
+		adjacent_to_space = FALSE
+		for (var/d in alldirs)
+			if (istype(get_step(src.loc, d), /turf/space))
+				adjacent_to_space = TRUE
 
 
 	proc/Pulse(var/list/p = FALSE)
+		//are we toggling for the first time this tick?
+		if (p != propogation)
+			//check if we are adjacent to space
+			check_space()
+			//heal (total heal time of 100 seconds effectively, currently) TODO: balance
+			health = max(health + max_health/1000, max_health)
+
 		propogation = p //update propogation to latest
 
 		run_action()
 
+		//TODO: this appears to be a matter of garbage collection needing help for some reason, this needs investigation
+		if (!src.loc)
+			qdel(src)
+			return
+
 		//TODO: move this into an oview call from core, let core manage giving itself shield blubs
 		//if (!istype(src,/obj/effect/blob/shield) && istype(from, /obj/effect/blob/core) && prob(30))
-			//change_to("Shield")
-
-		//check if we should turn into a wall (re-set every round and try to disprove
-		adjacent_to_space = FALSE
+			//change_to(BLOB_TYPE_WALL)
 
 		//Looking for another blob to pulse
 
@@ -102,6 +150,8 @@
 
 
 		//check if we are adjacent to space, if so turn into wall if we arent already
+		if (adjacent_to_space && blob_type != BLOB_TYPE_WALL)
+			change_to(BLOB_TYPE_WALL)
 
 		return
 
@@ -110,22 +160,27 @@
 	proc/poke_dir(var/d)
 		var/turf/T = get_step(src.loc, d)
 		if (istype(T, /turf/space))
-			adjacent_to_space = TRUE
 			return null
 		var/obj/effect/blob/B = (locate(/obj/effect/blob) in T)
 		if(!B)
 			//No blob here so try and expand
 			if(!prob((health/max_health)*10))	return null // 10% chance to expand each tick
-			for(var/atom/A in T)//Hit everything in the turf
-				A.blob_act()
 
 			B = new /obj/effect/blob(src.loc, min(src.health, 30))
 			if(T.Enter(B,src))//Attempt to move into the tile
+				for(var/atom/A in T)//Hit everything in the turf
+					A.blob_act()
 				B.loc = T
 				playsound(B.loc, 'sound/effects/splat.ogg', 50, 1)
 			else
 				T.blob_act() //If we cant move in hit the turf
-				qdel(B)
+				for(var/atom/A in T)//Hit everything in the turf
+					A.blob_act()
+				if(T.Enter(B,src))//try again
+					B.loc = T
+					playsound(B.loc, 'sound/effects/splat.ogg', 50, 1)
+				else
+					qdel(B)
 				return null
 		return B
 
@@ -195,16 +250,17 @@
 		update_icon()
 		return
 
-	proc/change_to(var/type = "Normal")
+
+	proc/change_to(var/type = BLOB_TYPE_NORMAL)
 		switch(type)
-			if("Normal")
+			if(BLOB_TYPE_NORMAL)
 				new/obj/effect/blob(src.loc,src.health)
-			if("Node")
+			if(BLOB_TYPE_NODE)
 				new/obj/effect/blob/node(src.loc,src.health*2)
-			if("Factory")
+			if(BLOB_TYPE_FACTORY)
 				new/obj/effect/blob/factory(src.loc,src.health)
-			if("Shield")
-				new/obj/effect/blob/shield(src.loc,src.health*2)
+			if(BLOB_TYPE_WALL)
+				new/obj/effect/blob/wall(src.loc,src.health*2)
 		qdel(src)
 		return
 

@@ -33,7 +33,7 @@
 			var/derp = unpulsed_blobs.len
 			var/obj/effect/blob/B = unpulsed_blobs[unpulsed_blobs.len]
 			unpulsed_blobs.Remove(B)
-			world << "before " << derp << "after" << unpulsed_blobs.len
+			world << "before " << derp << "after " << unpulsed_blobs.len
 			B.Pulse(p)
 
 

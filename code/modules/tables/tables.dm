@@ -157,6 +157,9 @@
 
 	return ..()
 
+/obj/structure/table/blob_act()
+	qdel(src)
+
 /obj/structure/table/MouseDrop_T(obj/item/stack/material/what)
 	if(can_reinforce && isliving(usr) && (!usr.stat) && istype(what) && usr.get_active_hand() == what && Adjacent(usr))
 		reinforce_table(what, usr)
