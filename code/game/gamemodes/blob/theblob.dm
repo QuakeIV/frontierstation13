@@ -5,6 +5,11 @@
 #define BLOB_TYPE_FACTORY 4
 #define BLOB_TYPE_WALL    5
 
+// the blob cannot expand into space:
+// this is justified under the notion that the blob is essentially a loose pile of cells that requires
+// some kind of cellular lattice to support it and provide it with a structure to follow.  the blob
+// will attempt to fill out the structure and form a sealed 'blob', using the station as a skeleton.
+
 //used for graph traversals
 /var/list/unpulsed_blobs
 
@@ -19,9 +24,9 @@
 	anchored = 1
 	var/active = 1
 	var/health = 30
-	var/max_health = 30
-	var/brute_resist = 4
-	var/fire_resist = 1
+	var/maxhealth = 30
+	var/brute_resist = 2   //originally 4
+	var/fire_resist  = 0.5 //originally 1
 	var/blob_type = BLOB_TYPE_NORMAL
 
 	var/adjacent_to_space = FALSE
@@ -41,9 +46,9 @@
 		*/
 
 
-	New(loc, var/h = 30)
+	New(loc, var/h = maxhealth)
 		blobs += src
-		src.health = h
+		src.health = min(h, maxhealth)
 		src.update_icon()
 		//check space adjacency
 		check_space()
@@ -97,7 +102,11 @@
 	proc/check_space()
 		adjacent_to_space = FALSE
 		for (var/d in alldirs)
-			if (istype(get_step(src.loc, d), /turf/space))
+			var/turf/T = get_step(src.loc, d)
+			if (!T)
+				world << "null turf for some fucking reason"
+				world << get_step(src.loc, d)
+			if (istype(T, /turf/space))
 				adjacent_to_space = TRUE
 
 
@@ -107,7 +116,7 @@
 			//check if we are adjacent to space
 			check_space()
 			//heal (total heal time of 100 seconds effectively, currently) TODO: balance
-			health = max(health + max_health/1000, max_health)
+			health = min(health + maxhealth/1000, maxhealth)
 
 		propogation = p //update propogation to latest
 
@@ -164,9 +173,9 @@
 		var/obj/effect/blob/B = (locate(/obj/effect/blob) in T)
 		if(!B)
 			//No blob here so try and expand
-			if(!prob((health/max_health)*10))	return null // 10% chance to expand each tick
+			if(!prob((health/maxhealth)*10))	return null // 10% chance to expand each tick
 
-			B = new /obj/effect/blob(src.loc, min(src.health, 30))
+			B = new /obj/effect/blob(src.loc, src.health)
 			if(T.Enter(B,src))//Attempt to move into the tile
 				for(var/atom/A in T)//Hit everything in the turf
 					A.blob_act()
@@ -184,8 +193,10 @@
 				return null
 		return B
 
+
 	proc/run_action()
 		return 0
+
 
 	fire_act(datum/gas_mixture/air, temperature, volume)
 		if(temperature > T0C+200)
@@ -214,7 +225,7 @@
 			playsound(src.loc, 'sound/effects/splat.ogg', 50, 1)
 			qdel(src)
 			return
-		if(health <= max_health/2)
+		if(health <= maxhealth/2)
 			icon_state = "blob_damaged"
 			return
 //		if(health <= 20)
@@ -240,11 +251,13 @@
 		var/damage = 0
 		switch(W.damtype)
 			if("fire")
-				damage = (W.force / max(src.fire_resist,1))
 				if(istype(W, /obj/item/weapon/weldingtool))
 					playsound(src.loc, 'sound/items/Welder.ogg', 100, 1)
+					damage = (W.force / src.fire_resist) * 2 //double damage for welder
+				else
+					damage = (W.force / src.fire_resist)
 			if("brute")
-				damage = (W.force / max(src.brute_resist,1))
+				damage = (W.force / src.brute_resist)
 
 		health -= damage
 		update_icon()
@@ -270,9 +283,10 @@
 	name = "blob"
 	desc = "it looks... tasty"
 	icon_state = "blobidle0"
+	maxhealth = 10
 
 
-	New(loc, var/h = 10)
+	New(loc, var/h = maxhealth)
 		src.health = h
 		src.update_idle()
 

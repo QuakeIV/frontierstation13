@@ -11,9 +11,9 @@ var/list/blob_nodes = list()
 	config_tag = "blob"
 	required_players = 0
 
-	//TODO: re-add delay
-	waittime_l = 1800 //300 //lower bound on time before intercept arrives (in tenths of seconds)
-	waittime_h = 3000 //600 //upper bound on time before intercept arrives (in tenths of seconds)
+	//TODO: extend delay (6000-9000)
+	waittime_l = 0 //1800 //lower bound on time before intercept arrives (in tenths of seconds)
+	waittime_h = 0 //3000 //upper bound on time before intercept arrives (in tenths of seconds)
 
 	var/current_blub_propogate = FALSE //toggle this off and on to track blob node graph traversal
 

@@ -3,12 +3,12 @@
 	icon = 'icons/mob/blob.dmi'
 	icon_state = "blob_core"
 	health = 200
-	max_health = 200
+	maxhealth = 200
 	brute_resist = 2
-	fire_resist = 2
+	fire_resist = 0.5 //originally 2
 
 
-	New(loc, var/h = 200)
+	New(loc, var/h = maxhealth)
 		blobs += src
 		blob_cores += src
 		processing_objects.Add(src)
@@ -26,15 +26,18 @@
 	// any pulsed blob will add additional pulse-able blobs into the unpulsed blobs list, to be iterated over
 	// this logic exists to flatten out the recursion so that we dont hit the recursion limiter in byond (honestly probably more effecient anyways, maybe not though)
 	Pulse(var/p)
-		unpulsed_blobs = new/list()
-		..() //call parent version of function on self to populate initial list
+		try
+			unpulsed_blobs = new/list()
+			..() //call parent version of function on self to populate initial list
 
-		while (unpulsed_blobs.len)
-			var/derp = unpulsed_blobs.len
-			var/obj/effect/blob/B = unpulsed_blobs[unpulsed_blobs.len]
-			unpulsed_blobs.Remove(B)
-			world << "before " << derp << "after " << unpulsed_blobs.len
-			B.Pulse(p)
+			while (unpulsed_blobs.len)
+				var/derp = unpulsed_blobs.len
+				var/obj/effect/blob/B = unpulsed_blobs[unpulsed_blobs.len]
+				unpulsed_blobs.Remove(B) //TODO: maybe just iterate to end with index, dont bother popping (probably way more effecient)
+				world << "before " << derp << "after " << unpulsed_blobs.len
+				B.Pulse(p)
+		catch(var/exception/e)
+			message_admins("[e] in blob Pulse, [e.file]:[e.line]")
 
 
 
