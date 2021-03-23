@@ -4,12 +4,12 @@
 	icon_state = "blob_idle"
 	desc = "Some blob creature thingy"
 	density = 1
-	opacity = 0
+	opacity = 1
 	anchored = 1
 	health = 60
 	maxhealth = 60
 	brute_resist = 2
-	fire_resist = 0.5
+	fire_resist = 1
 
 
 	update_icon()

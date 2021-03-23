@@ -34,6 +34,10 @@
 
 	return 1
 
+/obj/machinery/atmospherics/blob_act()
+	//TODO: deal with pipes properly, they seem to be remarkably buggy when they take damage currently
+	return
+
 /obj/machinery/atmospherics/pipe/return_air()
 	if(!parent)
 		parent = new /datum/pipeline()

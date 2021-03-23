@@ -10,6 +10,7 @@ var/list/blob_nodes = list()
 	name = "blob"
 	config_tag = "blob"
 	required_players = 0
+	auto_recall_shuttle = 1 //no shuttle lmao
 
 	//TODO: extend delay (6000-9000)
 	waittime_l = 0 //1800 //lower bound on time before intercept arrives (in tenths of seconds)
@@ -28,7 +29,7 @@ var/list/blob_nodes = list()
 
 	var/blob_count = 0
 	var/blobnukecount = 2000 //(originally 300)
-	var/blobwincount  = 7000  //(originally 700)
+	var/blobwincount  = 10000  //(originally 700)
 
 
 	announce()

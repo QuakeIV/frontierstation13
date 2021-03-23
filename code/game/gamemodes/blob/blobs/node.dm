@@ -5,7 +5,7 @@
 	health = 100
 	maxhealth = 100
 	brute_resist = 2
-	fire_resist = 0.5
+	fire_resist = 1
 
 
 	New(loc, var/h = maxhealth)
@@ -16,10 +16,11 @@
 
 
 	Destroy()
+		blobs -= src
 		blob_nodes -= src
 		processing_objects.Remove(src)
 		..()
-		return
+		return 0
 
 
 	update_icon()

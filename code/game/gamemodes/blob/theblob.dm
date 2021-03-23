@@ -8,7 +8,8 @@
 // the blob cannot expand into space:
 // this is justified under the notion that the blob is essentially a loose pile of cells that requires
 // some kind of cellular lattice to support it and provide it with a structure to follow.  the blob
-// will attempt to fill out the structure and form a sealed 'blob', using the station as a skeleton.
+// will attempt to fill out the structure and form an airtight 'blob', using the station as a
+// skeleton.
 
 //used for graph traversals
 /var/list/unpulsed_blobs
@@ -25,9 +26,12 @@
 	var/active = 1
 	var/health = 30
 	var/maxhealth = 30
-	var/brute_resist = 2   //originally 4
-	var/fire_resist  = 0.5 //originally 1
+	var/brute_resist = 2 //originally 4
+	var/fire_resist  = 1 //originally 1
 	var/blob_type = BLOB_TYPE_NORMAL
+
+	var/qdel_underway = FALSE //bug testing tool
+	var/pulsed_ever   = FALSE //bug testing tool
 
 	var/adjacent_to_space = FALSE
 
@@ -58,11 +62,14 @@
 
 	Destroy()
 		blobs -= src
+
 		unpulsed_blobs -= src
 
 		if (src in unpulsed_blobs)
-			message_admins("blob made it into unpulsed_blobs multiple times, report")
+			message_admins("ERROR: blob still in unpulsed_blobs somehow, report")
+			find_references(src)
 
+		//TODO: check isnull gcDestroyed for north/south/east/west
 		if (north)
 			north.south = null
 			north = null
@@ -79,6 +86,7 @@
 			west.east = null
 			west = null
 		..()
+		//del src //fuck it
 
 		return 0
 
@@ -95,7 +103,7 @@
 
 
 	blob_act() //blobs dont get hurt by blobs
-		message_admins("blob hit by other blob, report")
+		message_admins("ERROR: blob hit by other blob, this shouldnt happen, report this please")
 		return
 
 
@@ -104,13 +112,22 @@
 		for (var/d in alldirs)
 			var/turf/T = get_step(src.loc, d)
 			if (!T)
-				world << "null turf for some fucking reason"
-				world << get_step(src.loc, d)
+				message_admins("ERROR: blob got null turf when trying to check for space, report this please. turf:[T]")
 			if (istype(T, /turf/space))
 				adjacent_to_space = TRUE
 
 
 	proc/Pulse(var/list/p = FALSE)
+		pulsed_ever = TRUE
+		//TODO: this appears to be a matter of garbage collection needing help for some reason, this needs investigation
+		if (!src.loc)
+			if (qdel_underway)
+				message_admins("ERROR: invalid blob being QDEL'd more than once, somehow")
+				find_references(src)
+			qdel(src)
+			qdel_underway = TRUE
+			return
+
 		//are we toggling for the first time this tick?
 		if (p != propogation)
 			//check if we are adjacent to space
@@ -121,11 +138,6 @@
 		propogation = p //update propogation to latest
 
 		run_action()
-
-		//TODO: this appears to be a matter of garbage collection needing help for some reason, this needs investigation
-		if (!src.loc)
-			qdel(src)
-			return
 
 		//TODO: move this into an oview call from core, let core manage giving itself shield blubs
 		//if (!istype(src,/obj/effect/blob/shield) && istype(from, /obj/effect/blob/core) && prob(30))
@@ -168,14 +180,21 @@
 	// inspect a given direction, try to expand if given the chance
 	proc/poke_dir(var/d)
 		var/turf/T = get_step(src.loc, d)
+		if (!T)
+			message_admins("ERROR: turf null in blob/poke_dir")
 		if (istype(T, /turf/space))
 			return null
 		var/obj/effect/blob/B = (locate(/obj/effect/blob) in T)
 		if(!B)
 			//No blob here so try and expand
-			if(!prob((health/maxhealth)*10))	return null // 10% chance to expand each tick
+			if(!prob((health/maxhealth)*10))
+				return null // 10% chance to expand each tick
 
 			B = new /obj/effect/blob(src.loc, src.health)
+			if (!B)
+				message_admins("ERROR: new blob is null in blob/poke_dir")
+			if (!B.loc)
+				message_admins("ERROR: new blob.loc is null in blob/poke_dir")
 			if(T.Enter(B,src))//Attempt to move into the tile
 				for(var/atom/A in T)//Hit everything in the turf
 					A.blob_act()
@@ -265,15 +284,29 @@
 
 
 	proc/change_to(var/type = BLOB_TYPE_NORMAL)
+		var/obj/effect/blob/B
 		switch(type)
 			if(BLOB_TYPE_NORMAL)
-				new/obj/effect/blob(src.loc,src.health)
+				B = new/obj/effect/blob(src.loc,src.health)
 			if(BLOB_TYPE_NODE)
-				new/obj/effect/blob/node(src.loc,src.health*2)
+				B = new/obj/effect/blob/node(src.loc,src.health*2)
 			if(BLOB_TYPE_FACTORY)
-				new/obj/effect/blob/factory(src.loc,src.health)
+				B = new/obj/effect/blob/factory(src.loc,src.health)
 			if(BLOB_TYPE_WALL)
-				new/obj/effect/blob/wall(src.loc,src.health*2)
+				B = new/obj/effect/blob/wall(src.loc,src.health*2)
+		//re-wire references
+		B.north = src.north
+		B.south = src.south
+		B.east  = src.east
+		B.west  = src.west
+		if (src.north)
+			src.north.south = B
+		if (src.south)
+			src.south.north = B
+		if (src.west)
+			src.west.east = B
+		if (src.east)
+			src.east.west = B
 		qdel(src)
 		return
 

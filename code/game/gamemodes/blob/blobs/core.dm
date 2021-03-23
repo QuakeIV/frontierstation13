@@ -5,7 +5,7 @@
 	health = 200
 	maxhealth = 200
 	brute_resist = 2
-	fire_resist = 0.5 //originally 2
+	fire_resist = 1 //originally 2
 
 
 	New(loc, var/h = maxhealth)
@@ -16,10 +16,11 @@
 
 
 	Destroy()
+		blobs -= src
 		blob_cores -= src
 		processing_objects.Remove(src)
 		..()
-		return
+		return 0
 
 
 	// special pulse behavior for core, which will drive other blubs
@@ -34,10 +35,10 @@
 				var/derp = unpulsed_blobs.len
 				var/obj/effect/blob/B = unpulsed_blobs[unpulsed_blobs.len]
 				unpulsed_blobs.Remove(B) //TODO: maybe just iterate to end with index, dont bother popping (probably way more effecient)
-				world << "before " << derp << "after " << unpulsed_blobs.len
+				world << "before [derp] after [unpulsed_blobs.len]"
 				B.Pulse(p)
 		catch(var/exception/e)
-			message_admins("[e] in blob Pulse, [e.file]:[e.line]")
+			message_admins("[e] in blob/Pulse, [e.file]:[e.line]")
 
 
 

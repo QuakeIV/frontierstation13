@@ -464,6 +464,7 @@
 
 	return
 
+//TODO: this stuff should be ordered by precedence so people dont wait for refuel when other factors effectively supersede that
 /proc/init_shift_change(var/mob/user, var/force = 0)
 	if ((!( ticker ) || !emergency_shuttle.location()))
 		return
@@ -474,6 +475,11 @@
 
 	if(emergency_shuttle.online())
 		user << "The shuttle is already on its way."
+		return
+
+	//update: this one should not be optional
+	if(ticker.mode.name == "blob" || ticker.mode.name == "epidemic")
+		user << "Under directive 7-10, [station_name()] is quarantined until further notice."
 		return
 
 	// if force is 0, some things may stop the shuttle call
@@ -493,10 +499,6 @@
 		if(ticker.mode.auto_recall_shuttle)
 			//New version pretends to call the shuttle but cause the shuttle to return after a random duration.
 			emergency_shuttle.auto_recall = 1
-
-		if(ticker.mode.name == "blob" || ticker.mode.name == "epidemic")
-			user << "Under directive 7-10, [station_name()] is quarantined until further notice."
-			return
 
 	emergency_shuttle.call_transfer()
 

@@ -5,7 +5,7 @@
 	health = 100
 	maxhealth = 100
 	brute_resist = 2
-	fire_resist = 0.5
+	fire_resist = 1
 	var/list/spores = list()
 	var/max_spores = 4
 
