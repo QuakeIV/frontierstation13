@@ -31,12 +31,13 @@
 			unpulsed_blobs = new/list()
 			..() //call parent version of function on self to populate initial list
 
-			while (unpulsed_blobs.len)
-				var/derp = unpulsed_blobs.len
-				var/obj/effect/blob/B = unpulsed_blobs[unpulsed_blobs.len]
-				unpulsed_blobs.Remove(B) //TODO: maybe just iterate to end with index, dont bother popping (probably way more effecient)
-				world << "before [derp] after [unpulsed_blobs.len]"
-				B.Pulse(p)
+			var/index = 0
+			while (index < unpulsed_blobs.len)
+				unpulsed_blobs[index].Pulse(p)
+				index++
+
+			//cleanse the list
+			unpulsed_blobs = new/list()
 		catch(var/exception/e)
 			message_admins("[e] in blob/Pulse, [e.file]:[e.line]")
 

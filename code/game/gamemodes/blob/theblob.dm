@@ -67,7 +67,6 @@
 
 		if (src in unpulsed_blobs)
 			message_admins("ERROR: blob still in unpulsed_blobs somehow, report")
-			find_references(src)
 
 		//TODO: check isnull gcDestroyed for north/south/east/west
 		if (north)
@@ -123,7 +122,6 @@
 		if (!src.loc)
 			if (qdel_underway)
 				message_admins("ERROR: invalid blob being QDEL'd more than once, somehow")
-				find_references(src)
 			qdel(src)
 			qdel_underway = TRUE
 			return

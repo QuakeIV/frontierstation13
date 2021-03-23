@@ -52,7 +52,7 @@
 		"hot",
 		"cold",
 		"press", //pressure
-		"hot", //blob TODO: replace with nicer thing?
+		"blob",
 	)
 
 /obj/machinery/door/firedoor/New()
