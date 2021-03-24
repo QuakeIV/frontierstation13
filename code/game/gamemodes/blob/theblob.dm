@@ -11,9 +11,6 @@
 // will attempt to fill out the structure and form an airtight 'blob', using the station as a
 // skeleton.
 
-//used for graph traversals
-/var/list/unpulsed_blobs
-
 /obj/effect/blob
 	name = "blob"
 	icon = 'icons/mob/blob.dmi'
@@ -30,8 +27,9 @@
 	var/fire_resist  = 1 //originally 1
 	var/blob_type = BLOB_TYPE_NORMAL
 
-	var/qdel_underway = FALSE //bug testing tool
+	var/pulsed_qdel   = FALSE //bug testing tool
 	var/pulsed_ever   = FALSE //bug testing tool
+	var/multiple_del  = FALSE //bug testing tool
 
 	var/adjacent_to_space = FALSE
 
@@ -61,29 +59,43 @@
 
 
 	Destroy()
+		if (multiple_del)
+			message_admins("trying to del object multiple times")
+		multiple_del = TRUE
+
+
+
+		//rip
 		blobs -= src
 
-		unpulsed_blobs -= src
+		//unpulsed_blobs -= src
 
-		if (src in unpulsed_blobs)
-			message_admins("ERROR: blob still in unpulsed_blobs somehow, report")
+		//if (src in unpulsed_blobs)
+		//	message_admins("ERROR: blob still in unpulsed_blobs somehow, report")
 
-		//TODO: check isnull gcDestroyed for north/south/east/west
-		if (north)
-			north.south = null
-			north = null
+		//clean up references to this blob
+		var/obj/effect/blob/B
+		B = (locate(/obj/effect/blob) in get_step(src.loc, NORTH))
+		if (B)
+			B.south = null
+		B = (locate(/obj/effect/blob) in get_step(src.loc, SOUTH))
+		if (B)
+			B.north = null
+		B = (locate(/obj/effect/blob) in get_step(src.loc, EAST))
+		if (B)
+			B.west = null
+		B = (locate(/obj/effect/blob) in get_step(src.loc, WEST))
+		if (B)
+			B.east = null
 
-		if (south)
-			south.north = null
-			south = null
+		//clean up our references to other blobs
+		north = null
+		south = null
+		east = null
+		west = null
 
-		if (east)
-			east.west = null
-			east = null
 
-		if (west)
-			west.east = null
-			west = null
+
 		..()
 		//del src //fuck it
 
@@ -116,14 +128,14 @@
 				adjacent_to_space = TRUE
 
 
-	proc/Pulse(var/list/p = FALSE)
-		pulsed_ever = TRUE
+	proc/Pulse(var/p = FALSE, var/list/unpulsed)
+		pulsed_ever = TRUE //debugging tool
+
 		//TODO: this appears to be a matter of garbage collection needing help for some reason, this needs investigation
-		if (!src.loc)
-			if (qdel_underway)
-				message_admins("ERROR: invalid blob being QDEL'd more than once, somehow")
-			qdel(src)
-			qdel_underway = TRUE
+		if (!isnull(gcDestroyed))
+			if (pulsed_qdel)
+				message_admins("ERROR: dead blob being pulsed repeatedly")
+			pulsed_qdel = TRUE
 			return
 
 		//are we toggling for the first time this tick?
@@ -147,25 +159,37 @@
 		if (!north)
 			north = poke_dir(NORTH)
 		else if (north.propogation != propogation)
-			unpulsed_blobs.Add(north) //add to list to be pulsed by parent
+			if (isnull(north.gcDestroyed)) //clean up references to dead stuff
+				unpulsed.Add(north)
+			else
+				north = null
 
 		//SOUTH
 		if (!south)
 			south = poke_dir(SOUTH)
 		else if (south.propogation != propogation)
-			unpulsed_blobs.Add(south)
+			if (isnull(south.gcDestroyed)) //clean up references to dead stuff
+				unpulsed.Add(south)
+			else
+				south = null
 
 		//EAST
 		if (!east)
 			east = poke_dir(EAST)
 		else if (east.propogation != propogation)
-			unpulsed_blobs.Add(east)
+			if (isnull(east.gcDestroyed)) //clean up references to dead stuff
+				unpulsed.Add(east)
+			else
+				east = null
 
 		//WEST
 		if (!west)
 			west = poke_dir(WEST)
 		else if (west.propogation != propogation)
-			unpulsed_blobs.Add(west)
+			if (isnull(west.gcDestroyed)) //clean up references to dead stuff
+				unpulsed.Add(west)
+			else
+				west = null
 
 
 		//check if we are adjacent to space, if so turn into wall if we arent already
@@ -189,6 +213,7 @@
 				return null // 10% chance to expand each tick
 
 			B = new /obj/effect/blob(src.loc, src.health)
+			B.propogation = propogation
 			if (!B)
 				message_admins("ERROR: new blob is null in blob/poke_dir")
 			if (!B.loc)

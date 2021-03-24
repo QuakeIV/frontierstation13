@@ -7,16 +7,17 @@
 	brute_resist = 2
 	fire_resist = 1 //originally 2
 
+	var/list/unpulsed_blobs
+
 
 	New(loc, var/h = maxhealth)
-		blobs += src
 		blob_cores += src
 		processing_objects.Add(src)
+		unpulsed_blobs = new/list()
 		..(loc, h)
 
 
 	Destroy()
-		blobs -= src
 		blob_cores -= src
 		processing_objects.Remove(src)
 		..()
@@ -27,20 +28,21 @@
 	// any pulsed blob will add additional pulse-able blobs into the unpulsed blobs list, to be iterated over
 	// this logic exists to flatten out the recursion so that we dont hit the recursion limiter in byond (honestly probably more effecient anyways, maybe not though)
 	Pulse(var/p)
+		if (unpulsed_blobs.len > 0)
+			message_admins("async double-call to fucking Pulse")
+			return
 		try
-			unpulsed_blobs = new/list()
-			..() //call parent version of function on self to populate initial list
+			..(p, unpulsed_blobs) //call parent version of function on self to populate initial list
 
-			var/index = 0
-			while (index < unpulsed_blobs.len)
-				unpulsed_blobs[index].Pulse(p)
+			var/index = 1 //freaking byond 1-based indexing...
+			while (index <= unpulsed_blobs.len)
+				if (isnull(unpulsed_blobs[index].gcDestroyed))
+					unpulsed_blobs[index].Pulse(p, unpulsed_blobs)
 				index++
 
-			//cleanse the list
-			unpulsed_blobs = new/list()
+			unpulsed_blobs.len = 0
 		catch(var/exception/e)
 			message_admins("[e] in blob/Pulse, [e.file]:[e.line]")
-
 
 
 
