@@ -6,6 +6,7 @@
 	maxhealth = 100
 	brute_resist = 2
 	fire_resist = 1
+	blob_type = BLOB_TYPE_FACTORY
 	var/list/spores = list()
 	var/max_spores = 4
 

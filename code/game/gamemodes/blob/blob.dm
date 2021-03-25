@@ -20,6 +20,7 @@ var/list/blob_nodes = list()
 
 	var/declared = 0
 	var/stage = 0
+	var/currently_running = FALSE
 
 	var/cores_to_spawn = 3
 	var/players_per_core = 16
@@ -66,15 +67,25 @@ var/list/blob_nodes = list()
 
 
 	process()
+		if (currently_running)
+			message_admins("blob process running behind")
+			return
+
+		currently_running = TRUE
 		//expand blub, put in event code so that it can easily be fully turned off if needed
 		//TODO: confirm this can actually be turned off
 		expandBlob()
 
-		if(!declared)	return
+		if(!declared)
+			currently_running = FALSE
+			return
 		stage()
-		if(!autoexpand)	return
+		if(!autoexpand)
+			currently_running = FALSE
+			return
 		//extra blub expansion early-round
 		expandBlob()
+		currently_running = FALSE
 		return
 
 

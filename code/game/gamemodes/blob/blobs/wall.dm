@@ -6,10 +6,11 @@
 	density = 1
 	opacity = 1
 	anchored = 1
-	health = 60
-	maxhealth = 60
+	health = 100
+	maxhealth = 100
 	brute_resist = 2
 	fire_resist = 1
+	blob_type = BLOB_TYPE_WALL
 
 
 	update_icon()

@@ -73,21 +73,6 @@
 		//if (src in unpulsed_blobs)
 		//	message_admins("ERROR: blob still in unpulsed_blobs somehow, report")
 
-		//clean up references to this blob
-		var/obj/effect/blob/B
-		B = (locate(/obj/effect/blob) in get_step(src.loc, NORTH))
-		if (B)
-			B.south = null
-		B = (locate(/obj/effect/blob) in get_step(src.loc, SOUTH))
-		if (B)
-			B.north = null
-		B = (locate(/obj/effect/blob) in get_step(src.loc, EAST))
-		if (B)
-			B.west = null
-		B = (locate(/obj/effect/blob) in get_step(src.loc, WEST))
-		if (B)
-			B.east = null
-
 		//clean up our references to other blobs
 		north = null
 		south = null
@@ -134,7 +119,7 @@
 		//TODO: this appears to be a matter of garbage collection needing help for some reason, this needs investigation
 		if (!isnull(gcDestroyed))
 			if (pulsed_qdel)
-				message_admins("ERROR: dead blob being pulsed repeatedly")
+				message_admins("ERROR: dead blob being pulsed")
 			pulsed_qdel = TRUE
 			return
 
@@ -159,28 +144,28 @@
 		if (!north)
 			north = poke_dir(NORTH)
 		else if (north.propogation != propogation)
-			if (isnull(north.gcDestroyed)) //clean up references to dead stuff
+			if (isnull(north.gcDestroyed))
 				unpulsed.Add(north)
 			else
-				north = null
+				north = null //clean up references to dead stuff
 
 		//SOUTH
 		if (!south)
 			south = poke_dir(SOUTH)
 		else if (south.propogation != propogation)
-			if (isnull(south.gcDestroyed)) //clean up references to dead stuff
+			if (isnull(south.gcDestroyed))
 				unpulsed.Add(south)
 			else
-				south = null
+				south = null //clean up references to dead stuff
 
 		//EAST
 		if (!east)
 			east = poke_dir(EAST)
 		else if (east.propogation != propogation)
-			if (isnull(east.gcDestroyed)) //clean up references to dead stuff
+			if (isnull(east.gcDestroyed))
 				unpulsed.Add(east)
 			else
-				east = null
+				east = null //clean up references to dead stuff
 
 		//WEST
 		if (!west)
@@ -307,6 +292,8 @@
 
 
 	proc/change_to(var/type = BLOB_TYPE_NORMAL)
+		if (type == blob_type)
+			message_admins("for some reason a blob tried to turn into its own type")
 		var/obj/effect/blob/B
 		switch(type)
 			if(BLOB_TYPE_NORMAL)
@@ -317,6 +304,7 @@
 				B = new/obj/effect/blob/factory(src.loc,src.health)
 			if(BLOB_TYPE_WALL)
 				B = new/obj/effect/blob/wall(src.loc,src.health*2)
+		B.propogation = propogation
 		//re-wire references
 		B.north = src.north
 		B.south = src.south
