@@ -35,7 +35,8 @@
 	return 1
 
 /obj/machinery/atmospherics/blob_act()
-	//TODO: deal with pipes properly, they seem to be remarkably buggy when they take damage currently
+	//TODO: handle better
+	qdel(src)
 	return
 
 /obj/machinery/atmospherics/pipe/return_air()
@@ -68,8 +69,10 @@
 
 /obj/machinery/atmospherics/pipe/Destroy()
 	qdel(parent)
+	parent = null
 	if(air_temporary)
 		loc.assume_air(air_temporary)
+	air_temporary = null
 
 	..()
 
@@ -234,8 +237,10 @@
 /obj/machinery/atmospherics/pipe/simple/Destroy()
 	if(node1)
 		node1.disconnect(src)
+	node1 = null
 	if(node2)
 		node2.disconnect(src)
+	node2 = null
 
 	..()
 
