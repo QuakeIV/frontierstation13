@@ -107,7 +107,7 @@
 			o += "<span class='warning'><b>BIOHAZARD DETECTED</b></span> "
 
 		if(tile_info[index] == null)
-			o += "<span class='warning'>DATA UNAVAILABLE</span>"
+			o += "<span class='warning'>ATMO DATA UNAVAILABLE</span>"
 			user << o
 			continue
 		var/celsius = convert_k2c(tile_info[index][1])
@@ -324,17 +324,16 @@
 				alerts |= FIREDOOR_ALERT_BIOHAZARD
 				lockdown = 1
 
-			if(tileinfo==null)
-				continue // Bad data.
-			var/celsius = convert_k2c(tileinfo[1])
+			if(tileinfo!=null)
+				var/celsius = convert_k2c(tileinfo[1])
 
-			// Temperatures
-			if(celsius >= FIREDOOR_MAX_TEMP)
-				alerts |= FIREDOOR_ALERT_HOT
-				lockdown = 1
-			else if(celsius <= FIREDOOR_MIN_TEMP)
-				alerts |= FIREDOOR_ALERT_COLD
-				lockdown = 1
+				// Temperatures
+				if(celsius >= FIREDOOR_MAX_TEMP)
+					alerts |= FIREDOOR_ALERT_HOT
+					lockdown = 1
+				else if(celsius <= FIREDOOR_MIN_TEMP)
+					alerts |= FIREDOOR_ALERT_COLD
+					lockdown = 1
 
 			dir_alerts[index]=alerts
 
