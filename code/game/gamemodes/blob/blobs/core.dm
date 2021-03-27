@@ -11,13 +11,11 @@
 
 	New(loc, var/h = maxhealth)
 		blob_cores += src
-		//processing_objects.Add(src)
 		..(loc, h)
 
 
 	Destroy()
 		blob_cores -= src
-		//processing_objects.Remove(src)
 		..()
 		return 0
 
@@ -32,9 +30,9 @@
 
 			var/index = 1 //freaking byond 1-based indexing...
 			while (index <= unpulsed.len)
-				if (isnull(unpulsed[index].gcDestroyed))
-					if (unpulsed[index].propogation != p) //we only want to pulse a given blob once per run, and they can potentially get added multiple times under current logic
-						unpulsed[index].Pulse(p, unpulsed)
+				//we only want to pulse a given blob once per run, and they can potentially get added multiple times under current logic
+				if (unpulsed[index].propogation != p)
+					unpulsed[index].Pulse(p, unpulsed)
 				index++
 		catch(var/exception/e)
 			message_admins("[e] in blob/Pulse, [e.file]:[e.line]")
