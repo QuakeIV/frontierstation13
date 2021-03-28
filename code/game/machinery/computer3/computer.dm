@@ -75,15 +75,15 @@
 		set name = "Reset Computer"
 		set category = "Object"
 		set src in view(1)
-		
+
 		if(usr.stat || usr.restrained() || usr.lying || !istype(usr, /mob/living))
 			usr << "\red You can't do that."
 			return
-		
+
 		if(!Adjacent(usr))
 			usr << "You can't reach it."
 			return
-		
+
 		Reset()
 
 	New(var/L, var/built = 0)
@@ -235,9 +235,9 @@
 
 
 	blob_act()
-		if (prob(75))
-			set_broken()
-			density = 0
+		if(!(stat & (NOPOWER|BROKEN))) //only explode if we arent unpowered/broken
+			explosion(src.loc, 0, 0, 1, 5)
+		qdel(src)
 
 	/*
 		Computers have the capability to use a battery backup.

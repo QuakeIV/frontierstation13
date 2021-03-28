@@ -66,7 +66,8 @@
 
 
 /obj/machinery/computer/blob_act()
-	explosion(src.loc, 0, 0, 1, 5)
+	if(!(stat & (NOPOWER|BROKEN))) //only explode if we arent unpowered/broken
+		explosion(src.loc, 0, 0, 1, 5)
 	qdel(src)
 
 /obj/machinery/computer/update_icon()

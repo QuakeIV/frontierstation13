@@ -39,6 +39,10 @@
 	qdel(src)
 	return
 
+/obj/machinery/atmospherics/pipe/blob_act()
+	//TODO: fix destruction of pipes
+	return
+
 /obj/machinery/atmospherics/pipe/return_air()
 	if(!parent)
 		parent = new /datum/pipeline()
@@ -72,9 +76,10 @@
 	parent = null
 	if(air_temporary)
 		loc.assume_air(air_temporary)
-	air_temporary = null
 
-	..()
+	. = ..()
+
+	del src
 
 /obj/machinery/atmospherics/pipe/attackby(var/obj/item/weapon/W as obj, var/mob/user as mob)
 	if (istype(src, /obj/machinery/atmospherics/pipe/tank))
@@ -242,7 +247,7 @@
 		node2.disconnect(src)
 	node2 = null
 
-	..()
+	. = ..()
 
 /obj/machinery/atmospherics/pipe/simple/pipeline_expansion()
 	return list(node1, node2)
@@ -471,12 +476,15 @@
 /obj/machinery/atmospherics/pipe/manifold/Destroy()
 	if(node1)
 		node1.disconnect(src)
+	node1 = null
 	if(node2)
 		node2.disconnect(src)
+	node2 = null
 	if(node3)
 		node3.disconnect(src)
+	node3 = null
 
-	..()
+	. = ..()
 
 /obj/machinery/atmospherics/pipe/manifold/disconnect(obj/machinery/atmospherics/reference)
 	if(reference == node1)
@@ -713,14 +721,18 @@
 /obj/machinery/atmospherics/pipe/manifold4w/Destroy()
 	if(node1)
 		node1.disconnect(src)
+	node1 = null
 	if(node2)
 		node2.disconnect(src)
+	node2 = null
 	if(node3)
 		node3.disconnect(src)
+	node3 = null
 	if(node4)
 		node4.disconnect(src)
+	node4 = null
 
-	..()
+	. = ..()
 
 /obj/machinery/atmospherics/pipe/manifold4w/disconnect(obj/machinery/atmospherics/reference)
 	if(reference == node1)
@@ -970,8 +982,9 @@
 /obj/machinery/atmospherics/pipe/cap/Destroy()
 	if(node)
 		node.disconnect(src)
+	node = null
 
-	..()
+	. = ..()
 
 /obj/machinery/atmospherics/pipe/cap/disconnect(obj/machinery/atmospherics/reference)
 	if(reference == node)
@@ -1086,8 +1099,9 @@
 /obj/machinery/atmospherics/pipe/tank/Destroy()
 	if(node1)
 		node1.disconnect(src)
+	node1 = null
 
-	..()
+	. = ..()
 
 /obj/machinery/atmospherics/pipe/tank/pipeline_expansion()
 	return list(node1)
@@ -1270,8 +1284,9 @@
 /obj/machinery/atmospherics/pipe/vent/Destroy()
 	if(node1)
 		node1.disconnect(src)
+	node1 = null
 
-	..()
+	. = ..()
 
 /obj/machinery/atmospherics/pipe/vent/pipeline_expansion()
 	return list(node1)

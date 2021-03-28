@@ -123,7 +123,8 @@
 
 
 /obj/structure/window/blob_act()
-	shatter()
+	take_damage(rand(5,10)) //now matches what walls take
+	return
 
 
 /obj/structure/window/meteorhit()
@@ -297,7 +298,7 @@
 	// TODO :  Change to incapacitated() on merge.
 	if(usr.stat || usr.lying || usr.resting || usr.buckled)
 		return 0
-	
+
 	if(anchored)
 		usr << "It is fastened to the floor therefore you can't rotate it!"
 		return 0

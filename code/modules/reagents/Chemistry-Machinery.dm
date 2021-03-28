@@ -46,8 +46,7 @@
 				return
 
 /obj/machinery/chem_master/blob_act()
-	if (prob(50))
-		qdel(src)
+	qdel(src)
 
 /obj/machinery/chem_master/meteorhit()
 	qdel(src)

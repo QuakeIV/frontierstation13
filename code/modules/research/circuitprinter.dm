@@ -53,8 +53,7 @@ using metal and glass, it uses glass and reagents (usually sulfuric acis).
 		icon_state = "circuit_imprinter"
 
 /obj/machinery/r_n_d/circuit_imprinter/blob_act()
-	if(prob(50))
-		qdel(src)
+	qdel(src)
 
 /obj/machinery/r_n_d/circuit_imprinter/meteorhit()
 	qdel(src)

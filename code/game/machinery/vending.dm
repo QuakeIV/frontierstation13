@@ -169,11 +169,9 @@
 	return
 
 /obj/machinery/vending/blob_act()
-	if (prob(50))
-		spawn(0)
-			src.malfunction()
-			qdel(src)
-		return
+	spawn(0)
+		src.malfunction()
+		qdel(src)
 
 	return
 

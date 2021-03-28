@@ -29,11 +29,7 @@
 
 
 /obj/machinery/lapvend/blob_act()
-	if (prob(50))
-		spawn(0)
-			qdel(src)
-		return
-
+	qdel(src)
 	return
 
 

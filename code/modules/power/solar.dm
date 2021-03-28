@@ -167,9 +167,8 @@ var/list/solars_list = list()
 
 
 /obj/machinery/power/solar/blob_act()
-	if(prob(75))
-		broken()
-		src.density = 0
+	broken()
+	src.density = 0
 
 
 /obj/machinery/power/solar/fake/New(var/turf/loc, var/obj/item/solar_assembly/S)
@@ -534,9 +533,8 @@ var/list/solars_list = list()
 
 
 /obj/machinery/power/solar_control/blob_act()
-	if (prob(75))
-		broken()
-		src.density = 0
+	broken()
+	src.density = 0
 
 
 //
