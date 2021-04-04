@@ -73,7 +73,12 @@
 							possible_expansions += item
 
 							volume += item.volume
+
+							//lazy fix to prevent multiple pipelines from taking up the same pipe
+							if (!isnull(item.parent))
+								qdel(item.parent)
 							item.parent = src
+
 
 							alert_pressure = min(alert_pressure, item.alert_pressure)
 

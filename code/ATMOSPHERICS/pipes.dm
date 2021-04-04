@@ -40,7 +40,8 @@
 	return
 
 /obj/machinery/atmospherics/pipe/blob_act()
-	//TODO: fix destruction of pipes
+	//TODO: maybe replace with blob pipe later to allow blob ventcrawling?
+	qdel(src)
 	return
 
 /obj/machinery/atmospherics/pipe/return_air()
