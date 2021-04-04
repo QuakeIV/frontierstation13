@@ -33,8 +33,8 @@
 		world << "<B>Directive 7-12 has been successfully carried out preventing the Blob from spreading.</B>"
 
 	else
-		feedback_set_details("round_end_result","win - blob eliminated")
-		world << "<FONT size = 3><B>The staff has won!</B></FONT>"
+		//feedback_set_details("round_end_result","win - blob eliminated")
+		//world << "<FONT size = 3><B>The staff has won!</B></FONT>"
 		world << "<B>The alien organism has been eradicated from the station</B>"
 
 		var/datum/station_state/end_state = new /datum/station_state()
@@ -42,7 +42,7 @@
 		var/percent = round( 100.0 *  start_state.score(end_state), 0.1)
 		world << "<B>The station is [percent]% intact.</B>"
 		log_game("Blob mode was won with station [percent]% intact.")
-		world << "\blue Rebooting in 30s"
+		//world << "\blue Rebooting in 30s"
 	..()
 	return 1
 
