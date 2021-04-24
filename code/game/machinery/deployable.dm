@@ -135,7 +135,7 @@ for reference:
 	return
 
 /obj/structure/barricade/blob_act()
-	src.health -= 25
+	src.health -= rand(5, 10) //now matchwas what happens to walls
 	if (src.health <= 0)
 		visible_message("<span class='danger'>The blob eats through \the [src]!</span>")
 		qdel(src)
@@ -259,7 +259,10 @@ for reference:
 		return
 
 	blob_act()
-		src.health -= 25
+		if (anchored)
+			src.health -= rand(5, 10) //now matchwas what happens to walls
+		else
+			src.health -= rand(20,30) //but only if deployed
 		if (src.health <= 0)
 			src.explode()
 		return

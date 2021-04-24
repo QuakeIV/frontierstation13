@@ -1187,10 +1187,9 @@ obj/machinery/power/apc/proc/autoset(var/val, var/on)
 	return
 
 /obj/machinery/power/apc/blob_act()
-	if (prob(75))
-		set_broken()
-		if (cell && prob(5))
-			cell.blob_act()
+	set_broken()
+	if (cell)
+		cell.blob_act()
 
 /obj/machinery/power/apc/disconnect_terminal()
 	if(terminal)

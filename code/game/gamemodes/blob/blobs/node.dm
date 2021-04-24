@@ -2,13 +2,14 @@
 	name = "blob node"
 	icon = 'icons/mob/blob.dmi'
 	icon_state = "blob_node"
+	default_icon_state = "blob_node"
 	health = 100
-	max_health = 100
-	brute_resist = 1
-	fire_resist = 2
+	maxhealth = 100
+	brute_resist = 2
+	fire_resist = 1
 
 
-	New(loc, var/h = 100)
+	New(loc, var/h = maxhealth)
 		blobs += src
 		blob_nodes += src
 		processing_objects.Add(src)
@@ -16,10 +17,11 @@
 
 
 	Destroy()
+		blobs -= src
 		blob_nodes -= src
 		processing_objects.Remove(src)
 		..()
-		return
+		return 0
 
 
 	update_icon()

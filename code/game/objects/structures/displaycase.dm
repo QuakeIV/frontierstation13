@@ -36,13 +36,13 @@
 
 
 /obj/structure/displaycase/blob_act()
-	if (prob(75))
-		new /obj/item/weapon/material/shard( src.loc )
-		if (occupied)
-			new /obj/item/weapon/gun/energy/captain( src.loc )
-			occupied = 0
-		qdel(src)
+	health = 0
+	occupied = 0
+	new /obj/item/weapon/gun/energy/captain( src.loc )
 
+	healthcheck()
+
+	return
 
 /obj/structure/displaycase/meteorhit(obj/O as obj)
 		new /obj/item/weapon/material/shard( src.loc )

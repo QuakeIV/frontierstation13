@@ -130,10 +130,9 @@
 	return
 
 /obj/machinery/bodyscanner/blob_act()
-	if(prob(50))
-		for(var/atom/movable/A as mob|obj in src)
-			A.loc = src.loc
-		qdel(src)
+	for(var/atom/movable/A as mob|obj in src)
+		A.loc = src.loc
+	qdel(src)
 
 /obj/machinery/body_scanconsole/ex_act(severity)
 
@@ -151,9 +150,7 @@
 	return
 
 /obj/machinery/body_scanconsole/blob_act()
-
-	if(prob(50))
-		qdel(src)
+	qdel(src)
 
 /obj/machinery/body_scanconsole/power_change()
 	..()

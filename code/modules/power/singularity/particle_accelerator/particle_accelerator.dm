@@ -159,8 +159,7 @@ So, hopefully this is helpful if any more icons are to be added/changed/wonderin
 
 
 /obj/structure/particle_accelerator/blob_act()
-	if(prob(50))
-		qdel(src)
+	qdel(src)
 	return
 
 
@@ -346,8 +345,7 @@ So, hopefully this is helpful if any more icons are to be added/changed/wonderin
 
 
 /obj/machinery/particle_accelerator/blob_act()
-	if(prob(50))
-		qdel(src)
+	qdel(src)
 	return
 
 

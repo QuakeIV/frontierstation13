@@ -81,7 +81,7 @@ var/list/delayed_garbage = list()
 	return ..()+"([garbage_collector.destroyed.len]/[garbage_collector.dels]/[garbage_collector.hard_dels])"
 
 // Tests if an atom has been deleted.
-/proc/deleted(atom/A) 
+/proc/deleted(atom/A)
 	return !A || !isnull(A.gcDestroyed)
 
 // Should be treated as a replacement for the 'del' keyword.
@@ -136,7 +136,7 @@ var/list/delayed_garbage = list()
 	tag = null
 	return
 
-#ifdef TESTING
+//#ifdef TESTING
 /client/var/running_find_references
 
 /mob/verb/create_thing()
@@ -183,10 +183,10 @@ var/list/delayed_garbage = list()
 		for(var/varname in thing.vars)
 			var/variable = thing.vars[varname]
 			if(variable == src)
-				testing("Found [src.type] \ref[src] in [thing.type]'s [varname] var.")
+				testing("Found [src.type] \ref[src] in [thing.type]'s (\ref[thing]) [varname] var.")
 			else if(islist(variable))
 				if(src in variable)
-					testing("Found [src.type] \ref[src] in [thing.type]'s [varname] list var.")
+					testing("Found [src.type] \ref[src] in [thing.type]'s (\ref[thing]) [varname] list var.")
 	testing("Completed search for references to a [type].")
 	usr.client.running_find_references = null
 
@@ -199,7 +199,7 @@ var/list/delayed_garbage = list()
 				del(o)
 				garbage_collector.dels++
 			garbage_collector.destroyed.Cut(1, 2)
-#endif
+//#endif
 
 #ifdef GC_DEBUG
 #undef GC_DEBUG

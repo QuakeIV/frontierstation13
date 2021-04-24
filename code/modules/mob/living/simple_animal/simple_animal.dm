@@ -230,6 +230,9 @@
 	adjustBruteLoss(Proj.damage)
 	return 0
 
+/mob/living/simple_animal/blob_act()
+	adjustBruteLoss(rand(20,40))
+
 /mob/living/simple_animal/attack_hand(mob/living/carbon/human/M as mob)
 	..()
 

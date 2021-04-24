@@ -6,8 +6,8 @@
 	var/base_state = "left"
 	min_force = 4
 	hitsound = 'sound/effects/Glasshit.ogg'
-	maxhealth = 150 //If you change this, consiter changing ../door/window/brigdoor/ health at the bottom of this .dm file
-	health = 150
+	maxhealth = 50 //If you change this, consiter changing ../door/window/brigdoor/ health at the bottom of this .dm file
+	health = 50
 	visible = 0.0
 	use_power = 0
 	flags = ON_BORDER
@@ -104,7 +104,8 @@
 		return 1
 
 /obj/machinery/door/window/blob_act()
-	shatter() //just instagib because windoors are tricky to handle and are just glass anyways
+	playsound(src.loc, 'sound/effects/Glasshit.ogg', 75, 1)
+	take_damage(rand(5,10))
 
 /obj/machinery/door/window/open()
 	if (src.operating == 1) //doors can still open when emag-disabled
@@ -258,8 +259,8 @@
 	base_state = "leftsecure"
 	req_access = list(access_security)
 	var/id = null
-	maxhealth = 300
-	health = 300.0 //Stronger doors for prison (regular window door health is 150)
+	maxhealth = 150
+	health = 150 //Stronger doors for prison
 
 
 /obj/machinery/door/window/northleft

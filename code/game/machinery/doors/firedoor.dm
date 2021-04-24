@@ -9,7 +9,7 @@
 #define FIREDOOR_ALERT_HOT      1
 #define FIREDOOR_ALERT_COLD     2
 // Not used #define FIREDOOR_ALERT_LOWPRESS 4
-#define FIREDOOR_ALERT_BLOB     8
+#define FIREDOOR_ALERT_BIOHAZARD     8
 
 /obj/machinery/door/firedoor
 	name = "\improper Emergency Shutter"
@@ -52,7 +52,7 @@
 		"hot",
 		"cold",
 		"press", //pressure
-		"hot", //blob TODO: replace with nicer thing?
+		"biohazard",
 	)
 
 /obj/machinery/door/firedoor/New()
@@ -102,14 +102,15 @@
 				o += "EAST: "
 			if(4)
 				o += "WEST: "
+
+		if (dir_alerts[index] & FIREDOOR_ALERT_BIOHAZARD)
+			o += "<span class='warning'><b>BIOHAZARD DETECTED</b></span> "
+
 		if(tile_info[index] == null)
-			o += "<span class='warning'>DATA UNAVAILABLE</span>"
+			o += "<span class='warning'>ATMO DATA UNAVAILABLE</span>"
 			user << o
 			continue
 		var/celsius = convert_k2c(tile_info[index][1])
-
-		if (dir_alerts[index] & FIREDOOR_ALERT_BLOB)
-			o += "<span class='warning'><b>BLOB DETECTED</b></span> "
 		var/pressure = tile_info[index][2]
 		if(dir_alerts[index] & (FIREDOOR_ALERT_HOT|FIREDOOR_ALERT_COLD))
 			o += "<span class='warning'>"
@@ -285,11 +286,12 @@
 
 	return ..()
 
-// CHECK PRESSURE/TEMPERATURE/BLOB
+// CHECK PRESSURE/TEMPERATURE/BIOHAZARD
 /obj/machinery/door/firedoor/process()
 	..()
 
 	//independent blob detection and response logic
+	//using oview instead of orange since that actually makes somewhat more logical sense that it would only see stuff in 'view'
 	if (locate(/obj/effect/blob) in oview(1,src))
 		nextstate = CLOSED
 		close()
@@ -319,20 +321,19 @@
 
 			// check for blub
 			if ((locate(/obj/effect/blob) in get_step(src.loc, cardinal[index])))
-				alerts |= FIREDOOR_ALERT_BLOB
+				alerts |= FIREDOOR_ALERT_BIOHAZARD
 				lockdown = 1
 
-			if(tileinfo==null)
-				continue // Bad data.
-			var/celsius = convert_k2c(tileinfo[1])
+			if(tileinfo!=null)
+				var/celsius = convert_k2c(tileinfo[1])
 
-			// Temperatures
-			if(celsius >= FIREDOOR_MAX_TEMP)
-				alerts |= FIREDOOR_ALERT_HOT
-				lockdown = 1
-			else if(celsius <= FIREDOOR_MIN_TEMP)
-				alerts |= FIREDOOR_ALERT_COLD
-				lockdown = 1
+				// Temperatures
+				if(celsius >= FIREDOOR_MAX_TEMP)
+					alerts |= FIREDOOR_ALERT_HOT
+					lockdown = 1
+				else if(celsius <= FIREDOOR_MIN_TEMP)
+					alerts |= FIREDOOR_ALERT_COLD
+					lockdown = 1
 
 			dir_alerts[index]=alerts
 

@@ -9,7 +9,7 @@
 	pressure_resistance = 5*ONE_ATMOSPHERE
 	layer = 2.9
 	explosion_resistance = 1
-	var/health = 10
+	var/health = 15
 	var/destroyed = 0
 
 
@@ -17,7 +17,9 @@
 	qdel(src)
 
 /obj/structure/grille/blob_act()
-	qdel(src)
+	health -= rand(5,10)
+	playsound(loc, 'sound/effects/grillehit.ogg', 80, 1)
+	healthcheck()
 
 /obj/structure/grille/meteorhit(var/obj/M)
 	qdel(src)

@@ -60,9 +60,8 @@
 		return
 
 	blob_act()
-		if(prob(50))
-			new /obj/effect/effect/water(src.loc)
-			qdel(src)
+		new /obj/effect/effect/water(src.loc)
+		qdel(src)
 
 
 
@@ -226,7 +225,7 @@
 		reagents.add_reagent("beer",1000)
 
 /obj/structure/reagent_dispensers/beerkeg/blob_act()
-	explosion(src.loc,0,3,5,7,10)
+	explosion(src.loc,0,3,5,7,10) //TODO: this seems a bit absurd but also hilarious
 	qdel(src)
 
 /obj/structure/reagent_dispensers/virusfood

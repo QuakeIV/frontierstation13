@@ -94,6 +94,7 @@
 
 
 /obj/machinery/camera/blob_act()
+	qdel(src)
 	return
 
 /obj/machinery/camera/hitby(AM as mob|obj)

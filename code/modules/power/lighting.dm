@@ -549,8 +549,7 @@
 //blob effect
 
 /obj/machinery/light/blob_act()
-	if(prob(75))
-		broken()
+	broken()
 
 
 // timed process

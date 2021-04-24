@@ -2,41 +2,41 @@
 	name = "blob core"
 	icon = 'icons/mob/blob.dmi'
 	icon_state = "blob_core"
+	default_icon_state = "blob_core"
 	health = 200
-	max_health = 200
+	maxhealth = 200
 	brute_resist = 2
-	fire_resist = 2
+	fire_resist = 1 //originally 2
+	blob_type = BLOB_TYPE_CORE
 
 
-	New(loc, var/h = 200)
-		blobs += src
+	New(loc, var/h = maxhealth)
 		blob_cores += src
-		processing_objects.Add(src)
 		..(loc, h)
 
 
 	Destroy()
 		blob_cores -= src
-		processing_objects.Remove(src)
 		..()
-		return
+		return 0
 
 
 	// special pulse behavior for core, which will drive other blubs
 	// any pulsed blob will add additional pulse-able blobs into the unpulsed blobs list, to be iterated over
 	// this logic exists to flatten out the recursion so that we dont hit the recursion limiter in byond (honestly probably more effecient anyways, maybe not though)
 	Pulse(var/p)
-		unpulsed_blobs = new/list()
-		..() //call parent version of function on self to populate initial list
+		var/list/unpulsed = new/list()
+		try
+			..(p, unpulsed) //call parent version of function on self to populate initial list
 
-		while (unpulsed_blobs.len)
-			var/derp = unpulsed_blobs.len
-			var/obj/effect/blob/B = unpulsed_blobs[unpulsed_blobs.len]
-			unpulsed_blobs.Remove(B)
-			world << "before " << derp << "after " << unpulsed_blobs.len
-			B.Pulse(p)
-
-
+			var/index = 1 //freaking byond 1-based indexing...
+			while (index <= unpulsed.len)
+				//we only want to pulse a given blob once per run, and they can potentially get added multiple times under current logic
+				if (unpulsed[index].propogation != p)
+					unpulsed[index].Pulse(p, unpulsed)
+				index++
+		catch(var/exception/e)
+			message_admins("[e] in blob/Pulse, [e.file]:[e.line]")
 
 
 	update_icon()

@@ -123,24 +123,20 @@
 
 
 /obj/structure/window/blob_act()
-	shatter()
+	take_damage(rand(5,10)) //now matches what walls take
+	return
 
 
 /obj/structure/window/meteorhit()
 	shatter()
 
-//TODO: Make full windows a separate type of window.
-//Once a full window, it will always be a full window, so there's no point
-//having the same type for both.
-/obj/structure/window/proc/is_full_window()
-	return (dir == SOUTHWEST || dir == SOUTHEAST || dir == NORTHWEST || dir == NORTHEAST)
-
 /obj/structure/window/CanPass(atom/movable/mover, turf/target, height=0, air_group=0)
 	if(istype(mover) && mover.checkpass(PASSGLASS))
 		return 1
-	if(is_full_window())
-		return 0	//full tile window, you can't move into it!
-	if(get_dir(loc, target) == dir)
+	//TODO: make full tile windows its own object, this is dumb
+	if(is_fulltile())
+		return 0 //full tile window, you can't move into it!
+	if(get_dir(loc, target) & dir)
 		return !density
 	else
 		return 1
@@ -297,7 +293,7 @@
 	// TODO :  Change to incapacitated() on merge.
 	if(usr.stat || usr.lying || usr.resting || usr.buckled)
 		return 0
-	
+
 	if(anchored)
 		usr << "It is fastened to the floor therefore you can't rotate it!"
 		return 0

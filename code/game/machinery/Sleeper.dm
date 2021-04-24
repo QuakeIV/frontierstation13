@@ -195,11 +195,10 @@
 
 
 	blob_act()
-		if(prob(75))
-			for(var/atom/movable/A as mob|obj in src)
-				A.loc = src.loc
-				A.blob_act()
-			qdel(src)
+		for(var/atom/movable/A as mob|obj in src)
+			A.loc = src.loc
+			A.blob_act()
+		qdel(src)
 		return
 
 	attackby(var/obj/item/weapon/G as obj, var/mob/user as mob)

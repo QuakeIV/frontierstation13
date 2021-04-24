@@ -121,6 +121,11 @@
 		else
 	return
 
+/obj/structure/closet/crate/blob_act()
+	damage(rand(10,20))
+
+	return
+
 /obj/structure/closet/crate/secure
 	desc = "A secure crate."
 	name = "Secure crate"

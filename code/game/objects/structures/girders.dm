@@ -4,7 +4,7 @@
 	density = 1
 	layer = 2
 	var/state = 0
-	var/health = 200
+	var/health = 75
 	var/cover = 50 //how much cover the girder provides against projectiles.
 	var/material/reinf_material
 	var/reinforcing = 0
@@ -187,7 +187,7 @@
 
 /obj/structure/girder/proc/reinforce_girder()
 	cover = reinf_material.hardness
-	health = 500
+	health = 100
 	state = 2
 	icon_state = "reinforced"
 	reinforcing = 0
@@ -204,7 +204,9 @@
 	return ..()
 
 /obj/structure/girder/blob_act()
-	qdel(src)
+	health -= rand(5,10)
+	if (health <=0)
+		qdel(src)
 
 
 /obj/structure/girder/ex_act(severity)
@@ -226,7 +228,7 @@
 /obj/structure/girder/cult
 	icon= 'icons/obj/cult.dmi'
 	icon_state= "cultgirder"
-	health = 250
+	health = 100
 	cover = 70
 
 /obj/structure/girder/cult/dismantle()

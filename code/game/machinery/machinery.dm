@@ -172,8 +172,7 @@ Class Procs:
 	return
 
 /obj/machinery/blob_act()
-	if(prob(50))
-		qdel(src)
+	qdel(src)
 
 //sets the use_power var and then forces an area power update
 /obj/machinery/proc/update_use_power(var/new_use_power)

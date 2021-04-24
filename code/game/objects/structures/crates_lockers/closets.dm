@@ -202,12 +202,11 @@
 
 	return
 
-// this should probably use dump_contents()
+
 /obj/structure/closet/blob_act()
-	if(prob(75))
-		for(var/atom/movable/A as mob|obj in src)
-			A.forceMove(src.loc)
-		qdel(src)
+	break_open()
+	return
+
 
 /obj/structure/closet/meteorhit(obj/O as obj)
 	if(O.icon_state == "flaming")

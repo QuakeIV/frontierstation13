@@ -2,10 +2,12 @@
 	name = "porous blob"
 	icon = 'icons/mob/blob.dmi'
 	icon_state = "blob_factory"
+	default_icon_state = "blob_factory"
 	health = 100
-	max_health = 100
-	brute_resist = 1
-	fire_resist = 2
+	maxhealth = 100
+	brute_resist = 2
+	fire_resist = 1
+	blob_type = BLOB_TYPE_FACTORY
 	var/list/spores = list()
 	var/max_spores = 4
 

@@ -338,8 +338,7 @@
 
 
 /obj/machinery/door/blob_act()
-	//TODO: balance
-	take_damage(rand(5, 10))
+	take_damage(rand(5, 10)) //matches what walls take
 	if (health <= 0)
 		qdel(src)
 

@@ -172,7 +172,7 @@
 	return
 
 /obj/item/weapon/cell/blob_act()
-	if(prob(75))
+	if(prob(5))
 		explode()
 
 /obj/item/weapon/cell/proc/get_electrocute_damage()

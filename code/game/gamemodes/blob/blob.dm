@@ -10,15 +10,17 @@ var/list/blob_nodes = list()
 	name = "blob"
 	config_tag = "blob"
 	required_players = 0
+	auto_recall_shuttle = 1 //no shuttle lmao
 
-	//TODO: re-add delay
-	waittime_l = 1800 //300 //lower bound on time before intercept arrives (in tenths of seconds)
-	waittime_h = 3000 //600 //upper bound on time before intercept arrives (in tenths of seconds)
+	//TODO: extend delay (6000-9000)
+	waittime_l = 0 //1800 //lower bound on time before intercept arrives (in tenths of seconds)
+	waittime_h = 0 //3000 //upper bound on time before intercept arrives (in tenths of seconds)
 
 	var/current_blub_propogate = FALSE //toggle this off and on to track blob node graph traversal
 
 	var/declared = 0
 	var/stage = 0
+	var/currently_running = FALSE
 
 	var/cores_to_spawn = 3
 	var/players_per_core = 16
@@ -28,7 +30,11 @@ var/list/blob_nodes = list()
 
 	var/blob_count = 0
 	var/blobnukecount = 2000 //(originally 300)
-	var/blobwincount  = 7000  //(originally 700)
+	var/blobwincount  = 10000  //(originally 700)
+
+	// clock down blob to once every expansion timer frames
+	var/expansion_timer = 5
+	var/clock = 0
 
 
 	announce()
@@ -65,15 +71,35 @@ var/list/blob_nodes = list()
 
 
 	process()
-		//expand blub, put in event code so that it can easily be fully turned off if needed
-		//TODO: confirm this can actually be turned off
-		expandBlob()
+		// crappy timer code to clock blob run rate down a bit
+		if (clock < expansion_timer)
+			clock++
+			return
+		else
+			clock = 0
 
-		if(!declared)	return
-		stage()
-		if(!autoexpand)	return
-		//extra blub expansion early-round
-		expandBlob()
+		if (currently_running)
+			message_admins("blob process running behind")
+			return
+
+		// intent is to smooth things out a bit by not waiting for this to finish before moving on
+		// TODO: verify that?
+		spawn()
+			currently_running = TRUE
+			//expand blub, put in event code so that it can easily be fully turned off if needed
+			//TODO: confirm this can actually be turned off
+			expandBlob()
+
+			if(!declared)
+				currently_running = FALSE
+				return
+			stage()
+			if(!autoexpand)
+				currently_running = FALSE
+				return
+			//extra blub expansion early-round
+			expandBlob()
+			currently_running = FALSE
 		return
 
 

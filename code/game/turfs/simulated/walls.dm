@@ -191,8 +191,6 @@ var/list/global/wall_cache = list()
 	return
 
 /turf/simulated/wall/blob_act()
-	//TODO: balance
-	//take_damage(rand(75, 125))
 	take_damage(rand(5, 10))
 	return
 

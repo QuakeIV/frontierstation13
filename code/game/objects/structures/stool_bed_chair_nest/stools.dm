@@ -96,9 +96,8 @@ var/global/list/stool_cache = list() //haha stool
 				return
 
 /obj/item/weapon/stool/blob_act()
-	if(prob(75))
-		material.place_sheet(get_turf(src))
-		qdel(src)
+	dismantle()
+	return
 
 /obj/item/weapon/stool/proc/dismantle()
 	if(material)

@@ -157,8 +157,11 @@
 
 	return ..()
 
+
 /obj/structure/table/blob_act()
-	qdel(src)
+	playsound(src.loc, 'sound/weapons/tablehit1.ogg', 50, 1)
+	take_damage(rand(5,10))
+
 
 /obj/structure/table/MouseDrop_T(obj/item/stack/material/what)
 	if(can_reinforce && isliving(usr) && (!usr.stat) && istype(what) && usr.get_active_hand() == what && Adjacent(usr))

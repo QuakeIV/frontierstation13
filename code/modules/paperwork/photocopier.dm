@@ -147,12 +147,9 @@
 	return
 
 /obj/machinery/photocopier/blob_act()
-	if(prob(50))
-		qdel(src)
-	else
-		if(toner > 0)
-			new /obj/effect/decal/cleanable/blood/oil(get_turf(src))
-			toner = 0
+	new /obj/effect/decal/cleanable/blood/oil(get_turf(src))
+	toner = 0
+	qdel(src)
 	return
 
 /obj/machinery/photocopier/proc/copy(var/obj/item/weapon/paper/copy)
@@ -228,7 +225,7 @@
 			W = photocopy(W)
 		W.loc = p
 		p.pages += W
-		
+
 	p.loc = src.loc
 	p.update_icon()
 	p.icon_state = "paper_words"

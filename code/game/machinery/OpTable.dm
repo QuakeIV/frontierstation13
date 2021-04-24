@@ -42,8 +42,7 @@
 	return
 
 /obj/machinery/optable/blob_act()
-	if(prob(75))
-		qdel(src)
+	qdel(src)
 
 /obj/machinery/optable/attack_hand(mob/user as mob)
 	if (HULK in usr.mutations)
