@@ -32,6 +32,10 @@ var/list/blob_nodes = list()
 	var/blobnukecount = 2000 //(originally 300)
 	var/blobwincount  = 10000  //(originally 700)
 
+	// clock down blob to once every expansion timer frames
+	var/expansion_timer = 5
+	var/clock = 0
+
 
 	announce()
 		world << "<B>The current game mode is - <font color='green'>Blob</font>!</B>"
@@ -67,25 +71,35 @@ var/list/blob_nodes = list()
 
 
 	process()
+		// crappy timer code to clock blob run rate down a bit
+		if (clock < expansion_timer)
+			clock++
+			return
+		else
+			clock = 0
+
 		if (currently_running)
 			message_admins("blob process running behind")
 			return
 
-		currently_running = TRUE
-		//expand blub, put in event code so that it can easily be fully turned off if needed
-		//TODO: confirm this can actually be turned off
-		expandBlob()
+		// intent is to smooth things out a bit by not waiting for this to finish before moving on
+		// TODO: verify that?
+		spawn()
+			currently_running = TRUE
+			//expand blub, put in event code so that it can easily be fully turned off if needed
+			//TODO: confirm this can actually be turned off
+			expandBlob()
 
-		if(!declared)
+			if(!declared)
+				currently_running = FALSE
+				return
+			stage()
+			if(!autoexpand)
+				currently_running = FALSE
+				return
+			//extra blub expansion early-round
+			expandBlob()
 			currently_running = FALSE
-			return
-		stage()
-		if(!autoexpand)
-			currently_running = FALSE
-			return
-		//extra blub expansion early-round
-		expandBlob()
-		currently_running = FALSE
 		return
 
 

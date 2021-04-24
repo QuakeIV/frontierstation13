@@ -2,6 +2,7 @@
 	name = "blob core"
 	icon = 'icons/mob/blob.dmi'
 	icon_state = "blob_core"
+	default_icon_state = "blob_core"
 	health = 200
 	maxhealth = 200
 	brute_resist = 2

@@ -4,6 +4,7 @@
 #define BLOB_TYPE_CORE    3
 #define BLOB_TYPE_FACTORY 4
 #define BLOB_TYPE_WALL    5
+#define BLOB_TYPE_FLOOR   6
 
 // the blob cannot expand into space:
 // this is justified under the notion that the blob is essentially a loose pile of cells that requires
@@ -15,6 +16,7 @@
 	name = "blob"
 	icon = 'icons/mob/blob.dmi'
 	icon_state = "blob"
+	var/default_icon_state = "blob"
 	light_range = 3
 	desc = "Some blob creature thingy"
 	density = 1
@@ -87,14 +89,9 @@
 		return 0
 
 
-	CanPass(atom/movable/mover, turf/target, height=0, air_group=0)
-		if (air_group && !adjacent_to_space)
+	CanPass(atom/movable/mover, turf/target, height=1, air_group=0)
+		if(istype(mover) && mover.checkpass(PASSBLOB))
 			return 1
-		else
-			return 0
-		if(height==0)
-			return 1
-		if(istype(mover) && mover.checkpass(PASSBLOB))	return 1
 		return 0
 
 
@@ -127,8 +124,8 @@
 		if (p != propogation)
 			//check if we are adjacent to space
 			check_space()
-			//heal (total heal time of 100 seconds effectively, currently) TODO: balance
-			health = min(health + maxhealth/1000, maxhealth)
+			//heal (full heal time of 120 seconds currently) TODO: balance
+			health = min(health + maxhealth/1200, maxhealth)
 
 		propogation = p //update propogation to latest
 
@@ -145,7 +142,7 @@
 			north = poke_dir(NORTH)
 		else if (north.propogation != propogation)
 			if (isnull(north.gcDestroyed))
-				unpulsed.Add(north)
+				unpulsed.Add(north) //TODO: |= perhaps
 			else
 				north = null //clean up references to dead stuff
 
@@ -184,40 +181,81 @@
 		return
 
 
-	// inspect a given direction, try to expand if given the chance
+	// inspect a given direction, try to expand
 	proc/poke_dir(var/d)
 		var/turf/T = get_step(src.loc, d)
 		if (!T)
 			message_admins("ERROR: turf null in blob/poke_dir")
+
+		// 50% chance to expand each pulse * percent current health
+		if(!prob((health/maxhealth)*70))
+			return null
+
+		// check if we can reach out of tile before expanding network or checking if there is space
+		// turf.Enter had a nice system for acting on objects in order of precedence, using that here
+
+		// First, check objects to block exit that are not on the border of source tile
+		for(var/obj/obstacle in src.loc)
+			if(!(obstacle.flags & ON_BORDER) && (src != obstacle))
+				if(!obstacle.CheckExit(src, T))
+					src.Bump(obstacle, 1)
+					obstacle.blob_act()
+					//check twice, only return if we fail to smash through
+					if (obstacle && !obstacle.CheckExit(src, T))
+						return null
+
+		// Now, check objects to block exit that are on the border of source tile
+		for(var/obj/border_obstacle in src.loc)
+			if((border_obstacle.flags & ON_BORDER))
+				if(!border_obstacle.CheckExit(src, T))
+					src.Bump(border_obstacle, 1)
+					border_obstacle.blob_act()
+					//check twice, only return if we fail to smash through
+					if(border_obstacle  && !border_obstacle.CheckExit(src, T))
+						return null
+
+		//Next, check objects to block entry that are on the border of target tile
+		for(var/obj/border_obstacle in T)
+			if(border_obstacle.flags & ON_BORDER)
+				if(!border_obstacle.CanPass(src, src.loc, 1, 0))
+					border_obstacle.blob_act()
+					src.Bump(border_obstacle, 1)
+					//check twice, only return if we fail to smash through
+					if(border_obstacle && !border_obstacle.CanPass(src, src.loc, 1, 0))
+						return null
+
 		if (istype(T, /turf/space))
 			return null
-		var/obj/effect/blob/B = (locate(/obj/effect/blob) in T)
-		if(!B)
-			//No blob here so try and expand
-			if(!prob((health/maxhealth)*10))
-				return null // 10% chance to expand each tick
 
-			B = new /obj/effect/blob(src.loc, src.health)
-			B.propogation = propogation
-			if (!B)
-				message_admins("ERROR: new blob is null in blob/poke_dir")
-			if (!B.loc)
-				message_admins("ERROR: new blob.loc is null in blob/poke_dir")
-			if(T.Enter(B,src))//Attempt to move into the tile
-				for(var/atom/A in T)//Hit everything in the turf
-					A.blob_act()
-				B.loc = T
-				playsound(B.loc, 'sound/effects/splat.ogg', 50, 1)
-			else
-				T.blob_act() //If we cant move in hit the turf
-				for(var/atom/A in T)//Hit everything in the turf
-					A.blob_act()
-				if(T.Enter(B,src))//try again
-					B.loc = T
-					playsound(B.loc, 'sound/effects/splat.ogg', 50, 1)
-				else
-					qdel(B)
+		//Then, check the target tile itself
+		if (!T.CanPass(src, T))
+			src.Bump(T, 1)
+			T.blob_act()
+			//check twice, only return if we fail to smash through
+			if (T && !T.CanPass(src, T))
 				return null
+
+		var/obj/effect/blob/B = (locate(/obj/effect/blob) in T)
+
+		if(!B)
+			// No blob here so try and expand
+
+			//Finally, check objects/mobs to block entry that are not on the border of target tile
+			for(var/atom/movable/obstacle in T)
+				if(!(obstacle.flags & ON_BORDER))
+					if(!obstacle.CanPass(src, src.loc, 1, 0))
+						obstacle.blob_act()
+						src.Bump(obstacle, 1)
+						//check twice, only return if we fail to smash through
+						if(obstacle && !obstacle.CanPass(src, src.loc, 1, 0))
+							return null
+
+			// if we still havent returned, there are no obstacles and we can enter the tile
+			// make a new blub and place it in the destination tile
+			B = new /obj/effect/blob(src.loc, src.health)
+			B.loc = T
+			B.propogation = propogation
+			playsound(B.loc, 'sound/effects/splat.ogg', 50, 1)
 		return B
 
 
@@ -225,6 +263,7 @@
 		return 0
 
 
+	//TODO: balance
 	fire_act(datum/gas_mixture/air, temperature, volume)
 		if(temperature > T0C+200)
 			health -= 0.01 * temperature
@@ -247,7 +286,7 @@
 		return
 
 
-	update_icon()//Needs to be updated with the types
+	update_icon() //Needs to be updated with the types
 		if(health <= 0)
 			playsound(src.loc, 'sound/effects/splat.ogg', 50, 1)
 			qdel(src)
@@ -255,9 +294,9 @@
 		if(health <= maxhealth/2)
 			icon_state = "blob_damaged"
 			return
-//		if(health <= 20)
-//			icon_state = "blob_damaged2"
-//			return
+		if(health >= maxhealth * 3 / 4)
+			icon_state = default_icon_state
+		return
 
 
 	bullet_act(var/obj/item/projectile/Proj)
@@ -303,7 +342,9 @@
 			if(BLOB_TYPE_FACTORY)
 				B = new/obj/effect/blob/factory(src.loc,src.health)
 			if(BLOB_TYPE_WALL)
-				B = new/obj/effect/blob/wall(src.loc,src.health*2)
+				B = new/obj/effect/blob/wall(src.loc,src.health)
+			if(BLOB_TYPE_FLOOR)
+				B = new/obj/effect/blob/floor(src.loc,src.health)
 		B.propogation = propogation
 		//re-wire references
 		B.north = src.north
@@ -320,37 +361,3 @@
 			src.east.west = B
 		qdel(src)
 		return
-
-//////////////////////////////****IDLE BLOB***/////////////////////////////////////
-
-/obj/effect/blob/idle
-	name = "blob"
-	desc = "it looks... tasty"
-	icon_state = "blobidle0"
-	maxhealth = 10
-
-
-	New(loc, var/h = maxhealth)
-		src.health = h
-		src.update_idle()
-
-
-	proc/update_idle()
-		if(health<=0)
-			qdel(src)
-			return
-		if(health<4)
-			icon_state = "blobc0"
-			return
-		if(health<10)
-			icon_state = "blobb0"
-			return
-		icon_state = "blobidle0"
-
-
-	Destroy()
-		//TODO: the fuck does this even do
-		new /obj/effect/blob( src.loc )
-		..()
-
-

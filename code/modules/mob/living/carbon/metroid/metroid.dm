@@ -199,7 +199,7 @@
 
 	show_message("<span class='danger'> The blob attacks you!</span>")
 
-	adjustFireLoss(damage)
+	adjustBruteLoss(damage)
 
 	updatehealth()
 	return

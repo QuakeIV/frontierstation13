@@ -70,6 +70,10 @@
 	else
 		icon_state = "secbot[on]"
 
+/mob/living/bot/secbot/blob_act()
+	//TODO: balance
+	explode()
+
 /mob/living/bot/secbot/attack_hand(var/mob/user)
 	user.set_machine(src)
 	var/dat

@@ -2,6 +2,7 @@
 	name = "porous blob"
 	icon = 'icons/mob/blob.dmi'
 	icon_state = "blob_factory"
+	default_icon_state = "blob_factory"
 	health = 100
 	maxhealth = 100
 	brute_resist = 2
