@@ -33,6 +33,7 @@
 		world << "<B>Directive 7-12 has been successfully carried out preventing the Blob from spreading.</B>"
 
 	else
+		auto_recall_shuttle = 0
 		//feedback_set_details("round_end_result","win - blob eliminated")
 		//world << "<FONT size = 3><B>The staff has won!</B></FONT>"
 		world << "<B>The alien organism has been eradicated from the station</B>"
