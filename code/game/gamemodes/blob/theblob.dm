@@ -198,7 +198,6 @@
 		for(var/obj/obstacle in src.loc)
 			if(!(obstacle.flags & ON_BORDER) && (src != obstacle))
 				if(!obstacle.CheckExit(src, T))
-					src.Bump(obstacle, 1)
 					obstacle.blob_act()
 					//check twice, only return if we fail to smash through
 					if (obstacle && !obstacle.CheckExit(src, T))
@@ -208,7 +207,6 @@
 		for(var/obj/border_obstacle in src.loc)
 			if((border_obstacle.flags & ON_BORDER))
 				if(!border_obstacle.CheckExit(src, T))
-					src.Bump(border_obstacle, 1)
 					border_obstacle.blob_act()
 					//check twice, only return if we fail to smash through
 					if(border_obstacle  && !border_obstacle.CheckExit(src, T))
@@ -217,11 +215,10 @@
 		//Next, check objects to block entry that are on the border of target tile
 		for(var/obj/border_obstacle in T)
 			if(border_obstacle.flags & ON_BORDER)
-				if(!border_obstacle.CanPass(src, src.loc, 1, 0))
+				if(!border_obstacle.CanPass(src, src.loc, 1.5, 0))
 					border_obstacle.blob_act()
-					src.Bump(border_obstacle, 1)
 					//check twice, only return if we fail to smash through
-					if(border_obstacle && !border_obstacle.CanPass(src, src.loc, 1, 0))
+					if(border_obstacle && !border_obstacle.CanPass(src, src.loc, 1.5, 0))
 						return null
 
 		if (istype(T, /turf/space))
@@ -229,7 +226,6 @@
 
 		//Then, check the target tile itself
 		if (!T.CanPass(src, T))
-			src.Bump(T, 1)
 			T.blob_act()
 			//check twice, only return if we fail to smash through
 			if (T && !T.CanPass(src, T))
@@ -243,11 +239,10 @@
 			//Finally, check objects/mobs to block entry that are not on the border of target tile
 			for(var/atom/movable/obstacle in T)
 				if(!(obstacle.flags & ON_BORDER))
-					if(!obstacle.CanPass(src, src.loc, 1, 0))
+					if(!obstacle.CanPass(src, src.loc, 1.5, 0))
 						obstacle.blob_act()
-						src.Bump(obstacle, 1)
 						//check twice, only return if we fail to smash through
-						if(obstacle && !obstacle.CanPass(src, src.loc, 1, 0))
+						if(obstacle && !obstacle.CanPass(src, src.loc, 1.5, 0))
 							return null
 
 			// if we still havent returned, there are no obstacles and we can enter the tile
@@ -312,16 +307,17 @@
 
 
 	attackby(var/obj/item/weapon/W, var/mob/user)
-		playsound(src.loc, 'sound/effects/attackblob.ogg', 50, 1)
+		//TODO: this is kindof a crappy system it would be nice if the tool itself had some authority here
+		if(istype(W, /obj/item/weapon/weldingtool))
+			playsound(src.loc, 'sound/items/Welder.ogg', 100, 1)
+		else
+			playsound(src.loc, 'sound/effects/attackblob.ogg', 50, 1)
+
 		src.visible_message("<span class='danger'>The [src.name] has been attacked with \the [W][(user ? " by [user]." : ".")]</span>")
 		var/damage = 0
 		switch(W.damtype)
 			if("fire")
-				if(istype(W, /obj/item/weapon/weldingtool))
-					playsound(src.loc, 'sound/items/Welder.ogg', 100, 1)
-					damage = (W.force / src.fire_resist) * 2 //double damage for welder
-				else
-					damage = (W.force / src.fire_resist)
+				damage = (W.force / src.fire_resist)
 			if("brute")
 				damage = (W.force / src.brute_resist)
 
