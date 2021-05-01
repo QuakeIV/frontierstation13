@@ -336,7 +336,7 @@ var/list/name_to_material
 	name = "plasteel"
 	stack_type = /obj/item/stack/material/plasteel
 	integrity = 400
-	melting_point = 6000
+	melting_point = 32000
 	icon_base = "solid"
 	icon_reinf = "reinf_over"
 	icon_colour = "#777777"
