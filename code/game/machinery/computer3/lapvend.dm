@@ -206,7 +206,7 @@
 
 /obj/machinery/lapvend/proc/scan_id(var/obj/item/weapon/card/id/C, var/obj/item/I)
 	visible_message("<span class='info'>\The [usr] swipes \the [I] through \the [src].</span>")
-	var/datum/money_account/CH = get_account(C.associated_account_number)
+	var/datum/money_account/CH = find_account(C.associated_account_number)
 	if(!CH)
 		usr << "\icon[src]<span class='warning'>No valid account number is associated with this card.</span>"
 		return
@@ -230,8 +230,8 @@
 	if(transaction_amount <= D.money)
 
 		//transfer the money
-		D.money -= transaction_amount
-		vendor_account.money += transaction_amount
+		D.withdraw(transaction_amount)
+		vendor_account.deposit(transaction_amount)
 		//Transaction logs
 		var/datum/transaction/T = new()
 		T.target_name = "[vendor_account.owner_name] (via [src.name])"
@@ -241,8 +241,7 @@
 		else
 			T.amount = "[transaction_amount]"
 		T.source_terminal = src.name
-		T.date = current_date_string
-		T.time = worldtime2text()
+		T.time = world.realtime
 		D.transaction_log.Add(T)
 		//
 		T = new()
@@ -250,8 +249,7 @@
 		T.purpose = "Purchase of Laptop"
 		T.amount = "[transaction_amount]"
 		T.source_terminal = src.name
-		T.date = current_date_string
-		T.time = worldtime2text()
+		T.time = world.realtime
 		vendor_account.transaction_log.Add(T)
 
 		newlap = new /obj/machinery/computer3/laptop/vended(src.loc)
@@ -355,7 +353,7 @@
 
 /obj/machinery/lapvend/proc/reimburse_id(var/obj/item/weapon/card/id/C, var/obj/item/I)
 	visible_message("<span class='info'>\The [usr] swipes \the [I] through \the [src].</span>")
-	var/datum/money_account/CH = get_account(C.associated_account_number)
+	var/datum/money_account/CH = find_account(C.associated_account_number)
 	if(!CH)
 		usr << "\icon[src]<span class='warning'>No valid account number is associated with this card.</span>"
 		return 0
@@ -379,8 +377,8 @@
 /obj/machinery/lapvend/proc/transfer_and_reimburse(var/datum/money_account/D)
 	var/transaction_amount = total()
 	//transfer the money
-	D.money += transaction_amount
-	vendor_account.money -= transaction_amount
+	D.deposit(transaction_amount)
+	vendor_account.withdraw(transaction_amount)
 
 	//Transaction logs
 	var/datum/transaction/T = new()
@@ -391,8 +389,7 @@
 	else
 		T.amount = "[transaction_amount]"
 	T.source_terminal = src.name
-	T.date = current_date_string
-	T.time = worldtime2text()
+	T.time = world.realtime
 	D.transaction_log.Add(T)
 	//
 	T = new()
@@ -400,8 +397,7 @@
 	T.purpose = "Return purchase of Laptop"
 	T.amount = "[transaction_amount]"
 	T.source_terminal = src.name
-	T.date = current_date_string
-	T.time = worldtime2text()
+	T.time = world.realtime
 	vendor_account.transaction_log.Add(T)
 
 	qdel(relap)

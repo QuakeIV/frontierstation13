@@ -91,7 +91,7 @@ log transactions
 	else if(authenticated_account)
 		if(istype(I,/obj/item/weapon/spacecash))
 			//consume the money
-			authenticated_account.money += I:worth
+			authenticated_account.deposit(I:worth)
 			if(prob(50))
 				playsound(loc, 'sound/items/polaroid1.ogg', 50, 1)
 			else
@@ -103,8 +103,7 @@ log transactions
 			T.purpose = "Credit deposit"
 			T.amount = I:worth
 			T.source_terminal = machine_id
-			T.date = current_date_string
-			T.time = worldtime2text()
+			T.time = world.realtime
 			authenticated_account.transaction_log.Add(T)
 
 			user << "<span class='info'>You insert [I] into [src].</span>"
@@ -165,8 +164,7 @@ log transactions
 							dat += "</tr>"
 							for(var/datum/transaction/T in authenticated_account.transaction_log)
 								dat += "<tr>"
-								dat += "<td>[T.date]</td>"
-								dat += "<td>[T.time]</td>"
+								dat += "<td>[ss13time2text(T.time)]</td>"
 								dat += "<td>[T.target_name]</td>"
 								dat += "<td>[T.purpose]</td>"
 								dat += "<td>$[T.amount]</td>"
@@ -225,15 +223,14 @@ log transactions
 						var/transfer_purpose = href_list["purpose"]
 						if(charge_to_account(target_account_number, authenticated_account.owner_name, transfer_purpose, machine_id, transfer_amount))
 							usr << "\icon[src]<span class='info'>Funds transfer successful.</span>"
-							authenticated_account.money -= transfer_amount
+							authenticated_account.withdraw(transfer_amount)
 
 							//create an entry in the account transaction log
 							var/datum/transaction/T = new()
 							T.target_name = "Account #[target_account_number]"
 							T.purpose = transfer_purpose
 							T.source_terminal = machine_id
-							T.date = current_date_string
-							T.time = worldtime2text()
+							T.time = world.realtime
 							T.amount = "([transfer_amount])"
 							authenticated_account.transaction_log.Add(T)
 						else
@@ -268,14 +265,13 @@ log transactions
 								playsound(src, 'sound/machines/buzz-two.ogg', 50, 1)
 
 								//create an entry in the account transaction log
-								var/datum/money_account/failed_account = get_account(tried_account_num)
+								var/datum/money_account/failed_account = find_account(tried_account_num)
 								if(failed_account)
 									var/datum/transaction/T = new()
 									T.target_name = failed_account.owner_name
 									T.purpose = "Unauthorised login attempt"
 									T.source_terminal = machine_id
-									T.date = current_date_string
-									T.time = worldtime2text()
+									T.time = world.realtime
 									failed_account.transaction_log.Add(T)
 							else
 								usr << "\red \icon[src] Incorrect pin/account combination entered, [max_pin_attempts - number_incorrect_tries] attempts remaining."
@@ -294,8 +290,7 @@ log transactions
 						T.target_name = authenticated_account.owner_name
 						T.purpose = "Remote terminal access"
 						T.source_terminal = machine_id
-						T.date = current_date_string
-						T.time = worldtime2text()
+						T.time = world.realtime
 						authenticated_account.transaction_log.Add(T)
 
 						usr << "\blue \icon[src] Access granted. Welcome user '[authenticated_account.owner_name].'"
@@ -311,7 +306,7 @@ log transactions
 						playsound(src, 'sound/machines/chime.ogg', 50, 1)
 
 						//remove the money
-						authenticated_account.money -= amount
+						authenticated_account.withdraw(amount)
 
 						//	spawn_money(amount,src.loc)
 						spawn_ewallet(amount,src.loc,usr)
@@ -322,8 +317,7 @@ log transactions
 						T.purpose = "Credit withdrawal"
 						T.amount = "([amount])"
 						T.source_terminal = machine_id
-						T.date = current_date_string
-						T.time = worldtime2text()
+						T.time = world.realtime
 						authenticated_account.transaction_log.Add(T)
 					else
 						usr << "\icon[src]<span class='warning'>You don't have enough funds to do that!</span>"
@@ -337,7 +331,7 @@ log transactions
 						playsound(src, 'sound/machines/chime.ogg', 50, 1)
 
 						//remove the money
-						authenticated_account.money -= amount
+						authenticated_account.withdraw(amount)
 
 						spawn_money(amount,src.loc,usr)
 
@@ -347,8 +341,7 @@ log transactions
 						T.purpose = "Credit withdrawal"
 						T.amount = "([amount])"
 						T.source_terminal = machine_id
-						T.date = current_date_string
-						T.time = worldtime2text()
+						T.time = world.realtime
 						authenticated_account.transaction_log.Add(T)
 					else
 						usr << "\icon[src]<span class='warning'>You don't have enough funds to do that!</span>"
@@ -396,8 +389,7 @@ log transactions
 					R.info += "</tr>"
 					for(var/datum/transaction/T in authenticated_account.transaction_log)
 						R.info += "<tr>"
-						R.info += "<td>[T.date]</td>"
-						R.info += "<td>[T.time]</td>"
+						R.info += "<td>[ss13time2text(T.time)]</td>"
 						R.info += "<td>[T.target_name]</td>"
 						R.info += "<td>[T.purpose]</td>"
 						R.info += "<td>$[T.amount]</td>"
@@ -458,8 +450,7 @@ log transactions
 					T.target_name = authenticated_account.owner_name
 					T.purpose = "Remote terminal access"
 					T.source_terminal = machine_id
-					T.date = current_date_string
-					T.time = worldtime2text()
+					T.time = world.realtime
 					authenticated_account.transaction_log.Add(T)
 
 					view_screen = NO_SCREEN

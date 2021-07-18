@@ -10,6 +10,12 @@ proc/worldtime2text(time = world.time)
 	if(!roundstart_hour) roundstart_hour = pick(2,7,12,17)
 	return "[(round(time / 36000)+roundstart_hour) % 24]:[(time / 600 % 60) < 10 ? add_zero(time / 600 % 60, 1) : time / 600 % 60]"
 
+proc/ss13time2text(var/time=world.realtime)
+	// gameyear is current year + 544 years, so add that much to byondtime (byond time is in .1 seconds)
+	// have to do jank shit, since byond time2text chokes on 'realtime' type numbers that are too far into the future
+	return time2text(time, "DDD MMM DD hh:mm:ss") + " " + num2text((text2num(time2text(time, "YYYY"))+544))
+
+
 proc/worlddate2text()
 	return num2text((text2num(time2text(world.timeofday, "YYYY"))+544)) + "-" + time2text(world.timeofday, "MM-DD")
 

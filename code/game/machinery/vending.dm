@@ -324,7 +324,7 @@
 		visible_message("<span class='info'>\The [usr] swipes \the [I] through \the [src].</span>")
 	else
 		visible_message("<span class='info'>\The [usr] swipes \the [ID_container] through \the [src].</span>")
-	var/datum/money_account/customer_account = get_account(I.associated_account_number)
+	var/datum/money_account/customer_account = find_account(I.associated_account_number)
 	if (!customer_account)
 		src.status_message = "Error: Unable to access account. Please contact technical support if problem persists."
 		src.status_error = 1
@@ -354,7 +354,7 @@
 		// Okay to move the money at this point
 
 		// debit money from the purchaser's account
-		customer_account.money -= currently_vending.price
+		customer_account.withdraw(currently_vending.price)
 
 		// create entry in the purchaser's account log
 		var/datum/transaction/T = new()
@@ -365,8 +365,7 @@
 		else
 			T.amount = "[currently_vending.price]"
 		T.source_terminal = src.name
-		T.date = current_date_string
-		T.time = worldtime2text()
+		T.time = world.realtime
 		customer_account.transaction_log.Add(T)
 
 		// Give the vendor the money. We use the account owner name, which means
@@ -381,15 +380,14 @@
  *  Called after the money has already been taken from the customer.
  */
 /obj/machinery/vending/proc/credit_purchase(var/target as text)
-	vendor_account.money += currently_vending.price
+	vendor_account.deposit(currently_vending.price)
 
 	var/datum/transaction/T = new()
 	T.target_name = target
 	T.purpose = "Purchase of [currently_vending.product_name]"
 	T.amount = "[currently_vending.price]"
 	T.source_terminal = src.name
-	T.date = current_date_string
-	T.time = worldtime2text()
+	T.time = world.realtime
 	vendor_account.transaction_log.Add(T)
 
 /obj/machinery/vending/attack_ai(mob/user as mob)

@@ -131,7 +131,7 @@
 
 						//transfer the money
 						E.worth -= transaction_amount
-						linked_account.money += transaction_amount
+						linked_account.deposit(transaction_amount)
 
 						//create entry in the EFTPOS linked account transaction log
 						var/datum/transaction/T = new()
@@ -139,8 +139,7 @@
 						T.purpose = (transaction_purpose ? transaction_purpose : "None supplied.")
 						T.amount = transaction_amount
 						T.source_terminal = machine_id
-						T.date = current_date_string
-						T.time = worldtime2text()
+						T.time = world.realtime
 						linked_account.transaction_log.Add(T)
 					else
 						usr << "\icon[src]<span class='warning'>\The [O] doesn't have that much money!</span>"
@@ -238,7 +237,7 @@
 			if(linked_account)
 				if(!linked_account.suspended)
 					var/attempt_pin = ""
-					var/datum/money_account/D = get_account(C.associated_account_number)
+					var/datum/money_account/D = find_account(C.associated_account_number)
 					if(D.security_level)
 						attempt_pin = input("Enter pin code", "EFTPOS transaction") as num
 						D = null
@@ -251,8 +250,8 @@
 								transaction_paid = 1
 
 								//transfer the money
-								D.money -= transaction_amount
-								linked_account.money += transaction_amount
+								D.withdraw(transaction_amount)
+								linked_account.deposit(transaction_amount)
 
 								//create entries in the two account transaction logs
 								var/datum/transaction/T = new()
@@ -263,8 +262,7 @@
 								else
 									T.amount = "[transaction_amount]"
 								T.source_terminal = machine_id
-								T.date = current_date_string
-								T.time = worldtime2text()
+								T.time = world.realtime
 								D.transaction_log.Add(T)
 								//
 								T = new()
@@ -272,8 +270,7 @@
 								T.purpose = transaction_purpose
 								T.amount = "[transaction_amount]"
 								T.source_terminal = machine_id
-								T.date = current_date_string
-								T.time = worldtime2text()
+								T.time = world.realtime
 								linked_account.transaction_log.Add(T)
 							else
 								usr << "\icon[src]<span class='warning'>You don't have that much money!</span>"

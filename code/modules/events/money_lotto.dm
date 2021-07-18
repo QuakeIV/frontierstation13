@@ -9,14 +9,13 @@
 		var/datum/money_account/D = pick(all_money_accounts)
 		winner_name = D.owner_name
 		if(!D.suspended)
-			D.money += winner_sum
+			D.deposit(winner_sum)
 
 			var/datum/transaction/T = new()
 			T.target_name = "Nyx Daily Grand Slam -Stellar- Lottery"
 			T.purpose = "Winner!"
 			T.amount = winner_sum
-			T.date = current_date_string
-			T.time = worldtime2text()
+			T.time = world.realtime
 			T.source_terminal = "Biesel TCD Terminal #[rand(111,333)]"
 			D.transaction_log.Add(T)
 
