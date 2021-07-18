@@ -11,6 +11,27 @@
 							//1 - require manual login / account number and pin
 							//2 - require card and manual login
 
+// needs to be called before the world reboots or dies, or progress will be lost
+/proc/handle_money_persistence()
+	var/list/area/escape_locations = list(/area/shuttle/escape/centcom, /area/shuttle/escape_pod1/centcom, /area/shuttle/escape_pod2/centcom, /area/shuttle/escape_pod3/centcom, /area/shuttle/escape_pod5/centcom)
+	// TODO: more complex survival logic involving intact structures that arent a station
+	for(var/mob/M in player_list)
+		if(M.client && M.mind && M.mind.initial_account)
+			var/escaped = 0
+			var/alive   = 0
+			if(M.stat != DEAD)
+				alive   = 1
+			if(M.loc && M.loc.loc && M.loc.loc.type in escape_locations)
+				escaped = 1
+
+			if (escaped || alive)
+				var/value = 0
+				for (var/obj/item/weapon/spacecash/c in M.search_contents_for(/obj/item/weapon/spacecash))
+					world << "found '[c]' on [M] worth [c.worth] credits"
+					value += c.worth
+				M.mind.initial_account.deposit(value)
+				world << "[value] added to [M]'s bank account"
+
 /datum/money_account/proc/deposit(amount=0)
 	if(dbcon.IsConnected())
 		var/DBQuery/query = dbcon.NewQuery("UPDATE `tgstation`.`ntcred_accounts` SET `balance`=`balance`+[amount] where `account_number`=[account_number]")
