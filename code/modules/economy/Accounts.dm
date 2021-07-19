@@ -2,7 +2,7 @@
 /datum/money_account
 	var/owner_name = ""
 	var/creation_time = 0
-	var/account_number = 0
+	var/account_number = ""
 	var/remote_access_pin = 0
 	var/money = 0
 	var/list/transaction_log = list()
@@ -75,7 +75,7 @@
 	A.money  = starting_funds
 	T.amount = starting_funds
 	A.creation_time = world.realtime
-	A.account_number = rand(111111, 999999)
+	A.account_number = num2text(rand(111111, 999999))
 	A.remote_access_pin = rand(1111, 111111)
 
 	establish_db_connection()
@@ -97,7 +97,7 @@
 			world << "Financial DB entry not found."
 	else
 		//fallback mode
-		world << "Bank account for M.key created in fallback mode."
+		world << "Bank account for [M.key] created in fallback mode."
 
 	//add the account
 	A.transaction_log.Add(T)
@@ -128,10 +128,13 @@
 	return 0
 
 //this returns the first account datum that matches the supplied accnum/pin combination, it returns null if the combination did not match any account
-/proc/attempt_account_access(var/attempt_account_number, var/attempt_pin_number, var/security_level_passed = 0)
+/proc/attempt_account_access(var/attempt_account_number, var/attempt_pin_number)
 	for(var/datum/money_account/D in all_money_accounts)
 		if(D.account_number == attempt_account_number)
-			if( D.security_level <= security_level_passed && (!D.security_level || D.remote_access_pin == attempt_pin_number) )
+			world << text2num(attempt_pin_number)
+			world << attempt_pin_number
+			world << D.remote_access_pin
+			if ((D.security_level > 0 && D.remote_access_pin == text2num(attempt_pin_number)) || (D.security_level == 0))
 				return D
 			break
 

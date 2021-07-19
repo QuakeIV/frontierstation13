@@ -211,13 +211,10 @@
 		usr << "\icon[src]<span class='warning'>No valid account number is associated with this card.</span>"
 		return
 	if(CH.security_level != 0) //If card requires pin authentication (ie seclevel 1 or 2)
-		if(vendor_account)
-			var/attempt_pin = input("Enter pin code", "Vendor transaction") as num
-			var/datum/money_account/D = attempt_account_access(C.associated_account_number, attempt_pin, 2)
-			if(D)
-				transfer_and_vend(D, C)
-			else
-				usr << "\icon[src]<span class='warning'>Unable to access vendor account. Please record the machine ID and call CentComm Support.</span>"
+		var/attempt_pin = text2num(input("Enter pin code", "Vendor transaction"))
+		var/datum/money_account/D = attempt_account_access(C.associated_account_number, attempt_pin)
+		if(D)
+			transfer_and_vend(D, C)
 		else
 			usr << "\icon[src]<span class='warning'>Unable to access vendor account. Please record the machine ID and call CentComm Support.</span>"
 	else
@@ -231,10 +228,9 @@
 
 		//transfer the money
 		D.withdraw(transaction_amount)
-		vendor_account.deposit(transaction_amount)
 		//Transaction logs
 		var/datum/transaction/T = new()
-		T.target_name = "[vendor_account.owner_name] (via [src.name])"
+		T.target_name = "Laptop Vendor (via [src.name])"
 		T.purpose = "Purchase of Laptop"
 		if(transaction_amount > 0)
 			T.amount = "([transaction_amount])"
@@ -243,14 +239,6 @@
 		T.source_terminal = src.name
 		T.time = world.realtime
 		D.transaction_log.Add(T)
-		//
-		T = new()
-		T.target_name = D.owner_name
-		T.purpose = "Purchase of Laptop"
-		T.amount = "[transaction_amount]"
-		T.source_terminal = src.name
-		T.time = world.realtime
-		vendor_account.transaction_log.Add(T)
 
 		newlap = new /obj/machinery/computer3/laptop/vended(src.loc)
 
@@ -358,15 +346,11 @@
 		usr << "\icon[src]<span class='warning'>No valid account number is associated with this card.</span>"
 		return 0
 	if(CH.security_level != 0) //If card requires pin authentication (ie seclevel 1 or 2)
-		if(vendor_account)
-			var/attempt_pin = input("Enter pin code", "Vendor transaction") as num
-			var/datum/money_account/D = attempt_account_access(C.associated_account_number, attempt_pin, 2)
-			if(D)
-				transfer_and_reimburse(D)
-				return 1
-			else
-				usr << "\icon[src]<span class='warning'>Unable to access vendor account. Please record the machine ID and call CentComm Support.</span>"
-				return 0
+		var/attempt_pin = text2num(input("Enter pin code", "Vendor transaction"))
+		var/datum/money_account/D = attempt_account_access(C.associated_account_number, attempt_pin)
+		if(D)
+			transfer_and_reimburse(D)
+			return 1
 		else
 			usr << "\icon[src]<span class='warning'>Unable to access vendor account. Please record the machine ID and call CentComm Support.</span>"
 			return 0
@@ -378,11 +362,10 @@
 	var/transaction_amount = total()
 	//transfer the money
 	D.deposit(transaction_amount)
-	vendor_account.withdraw(transaction_amount)
 
 	//Transaction logs
 	var/datum/transaction/T = new()
-	T.target_name = "[vendor_account.owner_name] (via [src.name])"
+	T.target_name = "Laptop Vendor (via [src.name])"
 	T.purpose = "Return purchase of Laptop"
 	if(transaction_amount > 0)
 		T.amount = "([transaction_amount])"
@@ -391,14 +374,6 @@
 	T.source_terminal = src.name
 	T.time = world.realtime
 	D.transaction_log.Add(T)
-	//
-	T = new()
-	T.target_name = D.owner_name
-	T.purpose = "Return purchase of Laptop"
-	T.amount = "[transaction_amount]"
-	T.source_terminal = src.name
-	T.time = world.realtime
-	vendor_account.transaction_log.Add(T)
 
 	qdel(relap)
 	vendmode = 0

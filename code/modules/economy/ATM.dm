@@ -24,7 +24,7 @@ log transactions
 	idle_power_usage = 10
 	var/datum/money_account/authenticated_account
 	var/number_incorrect_tries = 0
-	var/previous_account_number = 0
+	var/previous_account_number = ""
 	var/max_pin_attempts = 3
 	var/ticks_left_locked_down = 0
 	var/ticks_left_timeout = 0
@@ -219,7 +219,7 @@ log transactions
 					if(transfer_amount <= 0)
 						alert("That is not a valid amount.")
 					else if(transfer_amount <= authenticated_account.money)
-						var/target_account_number = text2num(href_list["target_acc_number"])
+						var/target_account_number = href_list["target_acc_number"]
 						var/transfer_purpose = href_list["purpose"]
 						if(charge_to_account(target_account_number, authenticated_account.owner_name, transfer_purpose, machine_id, transfer_amount))
 							usr << "\icon[src]<span class='info'>Funds transfer successful.</span>"
@@ -249,53 +249,55 @@ log transactions
 				// check if they have low security enabled
 				scan_user(usr)
 
-				if(!ticks_left_locked_down && held_card)
-					var/tried_account_num = text2num(href_list["account_num"])
-					if(!tried_account_num)
-						tried_account_num = held_card.associated_account_number
-					var/tried_pin = text2num(href_list["account_pin"])
+				if (ticks_left_locked_down)
+					return
 
-					authenticated_account = attempt_account_access(tried_account_num, tried_pin, held_card && held_card.associated_account_number == tried_account_num ? 2 : 1)
-					if(!authenticated_account)
-						number_incorrect_tries++
-						if(previous_account_number == tried_account_num)
-							if(number_incorrect_tries > max_pin_attempts)
-								//lock down the atm
-								ticks_left_locked_down = 30
-								playsound(src, 'sound/machines/buzz-two.ogg', 50, 1)
+				var/tried_account_num = href_list["account_num"]
+				if(!tried_account_num && held_card)
+					tried_account_num = held_card.associated_account_number
+				var/tried_pin = text2num(href_list["account_pin"])
 
-								//create an entry in the account transaction log
-								var/datum/money_account/failed_account = find_account(tried_account_num)
-								if(failed_account)
-									var/datum/transaction/T = new()
-									T.target_name = failed_account.owner_name
-									T.purpose = "Unauthorised login attempt"
-									T.source_terminal = machine_id
-									T.time = world.realtime
-									failed_account.transaction_log.Add(T)
-							else
-								usr << "\red \icon[src] Incorrect pin/account combination entered, [max_pin_attempts - number_incorrect_tries] attempts remaining."
-								previous_account_number = tried_account_num
-								playsound(src, 'sound/machines/buzz-sigh.ogg', 50, 1)
+				authenticated_account = attempt_account_access(tried_account_num, tried_pin)
+				if(!authenticated_account)
+					number_incorrect_tries++
+					if(previous_account_number == tried_account_num)
+						if(number_incorrect_tries > max_pin_attempts)
+							//lock down the atm
+							ticks_left_locked_down = 30
+							playsound(src, 'sound/machines/buzz-two.ogg', 50, 1)
+
+							//create an entry in the account transaction log
+							var/datum/money_account/failed_account = find_account(tried_account_num)
+							if(failed_account)
+								var/datum/transaction/T = new()
+								T.target_name = failed_account.owner_name
+								T.purpose = "Unauthorised login attempt"
+								T.source_terminal = machine_id
+								T.time = world.realtime
+								failed_account.transaction_log.Add(T)
 						else
-							usr << "\red \icon[src] incorrect pin/account combination entered."
-							number_incorrect_tries = 0
+							usr << "\red \icon[src] Incorrect pin/account combination entered, [max_pin_attempts - number_incorrect_tries] attempts remaining."
+							previous_account_number = tried_account_num
+							playsound(src, 'sound/machines/buzz-sigh.ogg', 50, 1)
 					else
-						playsound(src, 'sound/machines/twobeep.ogg', 50, 1)
-						ticks_left_timeout = 120
-						view_screen = NO_SCREEN
+						usr << "\red \icon[src] incorrect pin/account combination entered."
+						number_incorrect_tries = 0
+				else
+					playsound(src, 'sound/machines/twobeep.ogg', 50, 1)
+					ticks_left_timeout = 120
+					view_screen = NO_SCREEN
 
-						//create a transaction log entry
-						var/datum/transaction/T = new()
-						T.target_name = authenticated_account.owner_name
-						T.purpose = "Remote terminal access"
-						T.source_terminal = machine_id
-						T.time = world.realtime
-						authenticated_account.transaction_log.Add(T)
+					//create a transaction log entry
+					var/datum/transaction/T = new()
+					T.target_name = authenticated_account.owner_name
+					T.purpose = "Remote terminal access"
+					T.source_terminal = machine_id
+					T.time = world.realtime
+					authenticated_account.transaction_log.Add(T)
 
-						usr << "\blue \icon[src] Access granted. Welcome user '[authenticated_account.owner_name].'"
+					usr << "\blue \icon[src] Access granted. Welcome user '[authenticated_account.owner_name].'"
 
-					previous_account_number = tried_account_num
+				previous_account_number = tried_account_num
 			if("e_withdrawal")
 				var/amount = max(text2num(href_list["funds_amount"]),0)
 				amount = round(amount, 0.01)

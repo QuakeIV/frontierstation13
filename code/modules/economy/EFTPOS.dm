@@ -58,10 +58,6 @@
 		R.overlays += stampoverlay
 		R.stamps += "<HR><i>This paper has been stamped by the EFTPOS device.</i>"
 
-	//by default, connect to the station account
-	//the user of the EFTPOS device can change the target account though, and no-one will be the wiser (except whoever's being charged)
-	linked_account = station_account
-
 /obj/item/device/eftpos/proc/print_reference()
 	var/obj/item/weapon/paper/R = new(src.loc)
 	R.name = "Reference: [eftpos_name]"
@@ -174,8 +170,8 @@
 					usr << "\icon[src]<span class='warning'>Incorrect code entered.</span>"
 			if("link_account")
 				var/attempt_account_num = input("Enter account number to pay EFTPOS charges into", "New account number") as num
-				var/attempt_pin = input("Enter pin code", "Account pin") as num
-				linked_account = attempt_account_access(attempt_account_num, attempt_pin, 1)
+				var/attempt_pin = text2num(input("Enter pin code", "Account pin"))
+				linked_account = attempt_account_access(attempt_account_num, attempt_pin)
 				if(linked_account)
 					if(linked_account.suspended)
 						linked_account = null
@@ -239,9 +235,9 @@
 					var/attempt_pin = ""
 					var/datum/money_account/D = find_account(C.associated_account_number)
 					if(D.security_level)
-						attempt_pin = input("Enter pin code", "EFTPOS transaction") as num
+						attempt_pin = text2num(input("Enter pin code", "EFTPOS transaction"))
 						D = null
-					D = attempt_account_access(C.associated_account_number, attempt_pin, 2)
+					D = attempt_account_access(C.associated_account_number, attempt_pin)
 					if(D)
 						if(!D.suspended)
 							if(transaction_amount <= D.money)
