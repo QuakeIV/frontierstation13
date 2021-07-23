@@ -118,29 +118,26 @@
 	else if (istype(O, /obj/item/weapon/spacecash/ewallet))
 		var/obj/item/weapon/spacecash/ewallet/E = O
 		if (linked_account)
-			if(!linked_account.suspended)
-				if(transaction_locked && !transaction_paid)
-					if(transaction_amount <= E.worth)
-						playsound(src, 'sound/machines/chime.ogg', 50, 1)
-						src.visible_message("\icon[src] \The [src] chimes.")
-						transaction_paid = 1
+			if(transaction_locked && !transaction_paid)
+				if(transaction_amount <= E.worth)
+					playsound(src, 'sound/machines/chime.ogg', 50, 1)
+					src.visible_message("\icon[src] \The [src] chimes.")
+					transaction_paid = 1
 
-						//transfer the money
-						E.worth -= transaction_amount
-						linked_account.deposit(transaction_amount)
+					//transfer the money
+					E.worth -= transaction_amount
+					linked_account.deposit(transaction_amount)
 
-						//create entry in the EFTPOS linked account transaction log
-						var/datum/transaction/T = new()
-						T.target_name = E.owner_name //D.owner_name
-						T.purpose = (transaction_purpose ? transaction_purpose : "None supplied.")
-						T.amount = transaction_amount
-						T.source_terminal = machine_id
-						T.time = world.realtime
-						linked_account.transaction_log.Add(T)
-					else
-						usr << "\icon[src]<span class='warning'>\The [O] doesn't have that much money!</span>"
-			else
-				usr << "\icon[src]<span class='warning'>Connected account has been suspended.</span>"
+					//create entry in the EFTPOS linked account transaction log
+					var/datum/transaction/T = new()
+					T.target_name = E.owner_name //D.owner_name
+					T.purpose = (transaction_purpose ? transaction_purpose : "None supplied.")
+					T.amount = transaction_amount
+					T.source_terminal = machine_id
+					T.time = world.realtime
+					linked_account.transaction_log.Add(T)
+				else
+					usr << "\icon[src]<span class='warning'>\The [O] doesn't have that much money!</span>"
 		else
 			usr << "\icon[src]<span class='warning'>EFTPOS is not connected to an account.</span>"
 
@@ -172,11 +169,7 @@
 				var/attempt_account_num = input("Enter account number to pay EFTPOS charges into", "New account number") as num
 				var/attempt_pin = text2num(input("Enter pin code", "Account pin"))
 				linked_account = attempt_account_access(attempt_account_num, attempt_pin)
-				if(linked_account)
-					if(linked_account.suspended)
-						linked_account = null
-						usr << "\icon[src]<span class='warning'>Account has been suspended.</span>"
-				else
+				if(!linked_account)
 					usr << "\icon[src]<span class='warning'>Account not found.</span>"
 			if("trans_purpose")
 				var/choice = sanitize(input("Enter reason for EFTPOS transaction", "Transaction purpose"))
@@ -231,51 +224,45 @@
 			usr.visible_message("<span class='info'>\The [usr] swipes \the [ID_container] through \the [src].</span>")
 		if(transaction_locked && !transaction_paid)
 			if(linked_account)
-				if(!linked_account.suspended)
-					var/attempt_pin = ""
-					var/datum/money_account/D = find_account(C.associated_account_number)
-					if(D.security_level)
-						attempt_pin = text2num(input("Enter pin code", "EFTPOS transaction"))
-						D = null
-					D = attempt_account_access(C.associated_account_number, attempt_pin)
-					if(D)
-						if(!D.suspended)
-							if(transaction_amount <= D.money)
-								playsound(src, 'sound/machines/chime.ogg', 50, 1)
-								src.visible_message("\icon[src] \The [src] chimes.")
-								transaction_paid = 1
+				var/attempt_pin = ""
+				var/datum/money_account/D = find_account(C.associated_account_number)
+				if(D.security_level)
+					attempt_pin = text2num(input("Enter pin code", "EFTPOS transaction"))
+					D = null
+				D = attempt_account_access(C.associated_account_number, attempt_pin)
+				if(D)
+					if(transaction_amount <= D.money)
+						playsound(src, 'sound/machines/chime.ogg', 50, 1)
+						src.visible_message("\icon[src] \The [src] chimes.")
+						transaction_paid = 1
 
-								//transfer the money
-								D.withdraw(transaction_amount)
-								linked_account.deposit(transaction_amount)
+						//transfer the money
+						D.withdraw(transaction_amount)
+						linked_account.deposit(transaction_amount)
 
-								//create entries in the two account transaction logs
-								var/datum/transaction/T = new()
-								T.target_name = "[linked_account.owner_name] (via [eftpos_name])"
-								T.purpose = transaction_purpose
-								if(transaction_amount > 0)
-									T.amount = "([transaction_amount])"
-								else
-									T.amount = "[transaction_amount]"
-								T.source_terminal = machine_id
-								T.time = world.realtime
-								D.transaction_log.Add(T)
-								//
-								T = new()
-								T.target_name = D.owner_name
-								T.purpose = transaction_purpose
-								T.amount = "[transaction_amount]"
-								T.source_terminal = machine_id
-								T.time = world.realtime
-								linked_account.transaction_log.Add(T)
-							else
-								usr << "\icon[src]<span class='warning'>You don't have that much money!</span>"
+						//create entries in the two account transaction logs
+						var/datum/transaction/T = new()
+						T.target_name = "[linked_account.owner_name] (via [eftpos_name])"
+						T.purpose = transaction_purpose
+						if(transaction_amount > 0)
+							T.amount = "([transaction_amount])"
 						else
-							usr << "\icon[src]<span class='warning'>Your account has been suspended.</span>"
+							T.amount = "[transaction_amount]"
+						T.source_terminal = machine_id
+						T.time = world.realtime
+						D.transaction_log.Add(T)
+						//
+						T = new()
+						T.target_name = D.owner_name
+						T.purpose = transaction_purpose
+						T.amount = "[transaction_amount]"
+						T.source_terminal = machine_id
+						T.time = world.realtime
+						linked_account.transaction_log.Add(T)
 					else
-						usr << "\icon[src]<span class='warning'>Unable to access account. Check security settings and try again.</span>"
+						usr << "\icon[src]<span class='warning'>You don't have that much money!</span>"
 				else
-					usr << "\icon[src]<span class='warning'>Connected account has been suspended.</span>"
+					usr << "\icon[src]<span class='warning'>Unable to access account. Check security settings and try again.</span>"
 			else
 				usr << "\icon[src]<span class='warning'>EFTPOS is not connected to an account.</span>"
 	else if (istype(I, /obj/item/weapon/card/emag))

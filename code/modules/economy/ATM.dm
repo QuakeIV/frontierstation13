@@ -12,8 +12,6 @@ log transactions
 #define TRANSFER_FUNDS 2
 #define VIEW_TRANSACTION_LOGS 3
 
-/obj/item/weapon/card/id/var/money = 2000
-
 /obj/machinery/atm
 	name = "NanoTrasen Automatic Teller Machine"
 	desc = "For all your monetary needs!"
@@ -114,7 +112,7 @@ log transactions
 
 /obj/machinery/atm/attack_hand(mob/user as mob)
 	if(istype(user, /mob/living/silicon))
-		user << "\red \icon[src] Artificial unit recognized. Artificial units do not currently receive monetary compensation, as per NanoTrasen regulation #1005."
+		user << "\red \icon[src] Artificial unit recognized. Artificial units are not currently permitted to hold accounts."
 		return
 	if(get_dist(src,user) <= 1)
 
@@ -131,71 +129,68 @@ log transactions
 			if(ticks_left_locked_down > 0)
 				dat += "<span class='alert'>Maximum number of pin attempts exceeded! Access to this ATM has been temporarily disabled.</span>"
 			else if(authenticated_account)
-				if(authenticated_account.suspended)
-					dat += "\red<b>Access to this account has been suspended, and the funds within frozen.</b>"
-				else
-					switch(view_screen)
-						if(CHANGE_SECURITY_LEVEL)
-							dat += "Select a new security level for this account:<br><hr>"
-							var/text = "Zero - Either the account number or card is required to access this account. EFTPOS transactions will require a card and ask for a pin, but not verify the pin is correct."
-							if(authenticated_account.security_level != 0)
-								text = "<A href='?src=\ref[src];choice=change_security_level;new_security_level=0'>[text]</a>"
-							dat += "[text]<hr>"
-							text = "One - An account number and pin must be manually entered to access this account and process transactions."
-							if(authenticated_account.security_level != 1)
-								text = "<A href='?src=\ref[src];choice=change_security_level;new_security_level=1'>[text]</a>"
-							dat += "[text]<hr>"
-							text = "Two - In addition to account number and pin, a card is required to access this account and process transactions."
-							if(authenticated_account.security_level != 2)
-								text = "<A href='?src=\ref[src];choice=change_security_level;new_security_level=2'>[text]</a>"
-							dat += "[text]<hr><br>"
-							dat += "<A href='?src=\ref[src];choice=view_screen;view_screen=0'>Back</a>"
-						if(VIEW_TRANSACTION_LOGS)
-							dat += "<b>Transaction logs</b><br>"
-							dat += "<A href='?src=\ref[src];choice=view_screen;view_screen=0'>Back</a>"
-							dat += "<table border=1 style='width:100%'>"
+				switch(view_screen)
+					if(CHANGE_SECURITY_LEVEL)
+						dat += "Select a new security level for this account:<br><hr>"
+						var/text = "Zero - Either the account number or card is required to access this account. EFTPOS transactions will require a card and ask for a pin, but not verify the pin is correct."
+						if(authenticated_account.security_level != 0)
+							text = "<A href='?src=\ref[src];choice=change_security_level;new_security_level=0'>[text]</a>"
+						dat += "[text]<hr>"
+						text = "One - An account number and pin must be manually entered to access this account and process transactions."
+						if(authenticated_account.security_level != 1)
+							text = "<A href='?src=\ref[src];choice=change_security_level;new_security_level=1'>[text]</a>"
+						dat += "[text]<hr>"
+						text = "Two - In addition to account number and pin, a card is required to access this account and process transactions."
+						if(authenticated_account.security_level != 2)
+							text = "<A href='?src=\ref[src];choice=change_security_level;new_security_level=2'>[text]</a>"
+						dat += "[text]<hr><br>"
+						dat += "<A href='?src=\ref[src];choice=view_screen;view_screen=0'>Back</a>"
+					if(VIEW_TRANSACTION_LOGS)
+						dat += "<b>Transaction logs</b><br>"
+						dat += "<A href='?src=\ref[src];choice=view_screen;view_screen=0'>Back</a>"
+						dat += "<table border=1 style='width:100%'>"
+						dat += "<tr>"
+						dat += "<td><b>Date</b></td>"
+						dat += "<td><b>Time</b></td>"
+						dat += "<td><b>Target</b></td>"
+						dat += "<td><b>Purpose</b></td>"
+						dat += "<td><b>Value</b></td>"
+						dat += "<td><b>Source terminal ID</b></td>"
+						dat += "</tr>"
+						for(var/datum/transaction/T in authenticated_account.transaction_log)
 							dat += "<tr>"
-							dat += "<td><b>Date</b></td>"
-							dat += "<td><b>Time</b></td>"
-							dat += "<td><b>Target</b></td>"
-							dat += "<td><b>Purpose</b></td>"
-							dat += "<td><b>Value</b></td>"
-							dat += "<td><b>Source terminal ID</b></td>"
+							dat += "<td>[ss13time2text(T.time)]</td>"
+							dat += "<td>[T.target_name]</td>"
+							dat += "<td>[T.purpose]</td>"
+							dat += "<td>$[T.amount]</td>"
+							dat += "<td>[T.source_terminal]</td>"
 							dat += "</tr>"
-							for(var/datum/transaction/T in authenticated_account.transaction_log)
-								dat += "<tr>"
-								dat += "<td>[ss13time2text(T.time)]</td>"
-								dat += "<td>[T.target_name]</td>"
-								dat += "<td>[T.purpose]</td>"
-								dat += "<td>$[T.amount]</td>"
-								dat += "<td>[T.source_terminal]</td>"
-								dat += "</tr>"
-							dat += "</table>"
-							dat += "<A href='?src=\ref[src];choice=print_transaction'>Print</a><br>"
-						if(TRANSFER_FUNDS)
-							dat += "<b>Account balance:</b> $[authenticated_account.money]<br>"
-							dat += "<A href='?src=\ref[src];choice=view_screen;view_screen=0'>Back</a><br><br>"
-							dat += "<form name='transfer' action='?src=\ref[src]' method='get'>"
-							dat += "<input type='hidden' name='src' value='\ref[src]'>"
-							dat += "<input type='hidden' name='choice' value='transfer'>"
-							dat += "Target account number: <input type='text' name='target_acc_number' value='' style='width:200px; background-color:white;'><br>"
-							dat += "Funds to transfer: <input type='text' name='funds_amount' value='' style='width:200px; background-color:white;'><br>"
-							dat += "Transaction purpose: <input type='text' name='purpose' value='Funds transfer' style='width:200px; background-color:white;'><br>"
-							dat += "<input type='submit' value='Transfer funds'><br>"
-							dat += "</form>"
-						else
-							dat += "Welcome, <b>[authenticated_account.owner_name].</b><br/>"
-							dat += "<b>Account balance:</b> $[authenticated_account.money]"
-							dat += "<form name='withdrawal' action='?src=\ref[src]' method='get'>"
-							dat += "<input type='hidden' name='src' value='\ref[src]'>"
-							dat += "<input type='radio' name='choice' value='withdrawal' checked> Cash  <input type='radio' name='choice' value='e_withdrawal'> Chargecard<br>"
-							dat += "<input type='text' name='funds_amount' value='' style='width:200px; background-color:white;'><input type='submit' value='Withdraw'>"
-							dat += "</form>"
-							dat += "<A href='?src=\ref[src];choice=view_screen;view_screen=1'>Change account security level</a><br>"
-							dat += "<A href='?src=\ref[src];choice=view_screen;view_screen=2'>Make transfer</a><br>"
-							dat += "<A href='?src=\ref[src];choice=view_screen;view_screen=3'>View transaction log</a><br>"
-							dat += "<A href='?src=\ref[src];choice=balance_statement'>Print balance statement</a><br>"
-							dat += "<A href='?src=\ref[src];choice=logout'>Logout</a><br>"
+						dat += "</table>"
+						dat += "<A href='?src=\ref[src];choice=print_transaction'>Print</a><br>"
+					if(TRANSFER_FUNDS)
+						dat += "<b>Account balance:</b> $[authenticated_account.money]<br>"
+						dat += "<A href='?src=\ref[src];choice=view_screen;view_screen=0'>Back</a><br><br>"
+						dat += "<form name='transfer' action='?src=\ref[src]' method='get'>"
+						dat += "<input type='hidden' name='src' value='\ref[src]'>"
+						dat += "<input type='hidden' name='choice' value='transfer'>"
+						dat += "Target account number: <input type='text' name='target_acc_number' value='' style='width:200px; background-color:white;'><br>"
+						dat += "Funds to transfer: <input type='text' name='funds_amount' value='' style='width:200px; background-color:white;'><br>"
+						dat += "Transaction purpose: <input type='text' name='purpose' value='Funds transfer' style='width:200px; background-color:white;'><br>"
+						dat += "<input type='submit' value='Transfer funds'><br>"
+						dat += "</form>"
+					else
+						dat += "Welcome, <b>[authenticated_account.owner_name].</b><br/>"
+						dat += "<b>Account balance:</b> $[authenticated_account.money]"
+						dat += "<form name='withdrawal' action='?src=\ref[src]' method='get'>"
+						dat += "<input type='hidden' name='src' value='\ref[src]'>"
+						dat += "<input type='radio' name='choice' value='withdrawal' checked> Cash  <input type='radio' name='choice' value='e_withdrawal'> Chargecard<br>"
+						dat += "<input type='text' name='funds_amount' value='' style='width:200px; background-color:white;'><input type='submit' value='Withdraw'>"
+						dat += "</form>"
+						dat += "<A href='?src=\ref[src];choice=view_screen;view_screen=1'>Change account security level</a><br>"
+						dat += "<A href='?src=\ref[src];choice=view_screen;view_screen=2'>Make transfer</a><br>"
+						dat += "<A href='?src=\ref[src];choice=view_screen;view_screen=3'>View transaction log</a><br>"
+						dat += "<A href='?src=\ref[src];choice=balance_statement'>Print balance statement</a><br>"
+						dat += "<A href='?src=\ref[src];choice=logout'>Logout</a><br>"
 			else
 				dat += "<form name='atm_auth' action='?src=\ref[src]' method='get'>"
 				dat += "<input type='hidden' name='src' value='\ref[src]'>"

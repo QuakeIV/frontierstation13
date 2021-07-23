@@ -5,8 +5,7 @@
 	var/account_number = ""
 	var/remote_access_pin = 0
 	var/money = 0
-	var/list/transaction_log = list()
-	var/suspended = 0
+	var/list/transaction_log = list() //TODO: database this? not if every remote terminal access is a transaction though...
 	var/security_level = 0	//0 - auto-identify from worn ID, require only account number
 							//1 - require manual login / account number and pin
 							//2 - require card and manual login
@@ -36,14 +35,14 @@
 	if(dbcon.IsConnected())
 		var/DBQuery/query = dbcon.NewQuery("UPDATE `tgstation`.`ntcred_accounts` SET `balance`=`balance`+[amount] where `account_number`=[account_number]")
 		if (!query.Execute())
-			world << query.ErrorMsg() //TODO: proper error message
+			world << query.ErrorMsg() //TODO: proper error message instead of piping to world
 	money += amount
 
 /datum/money_account/proc/withdraw(amount=0)
 	if(dbcon.IsConnected())
 		var/DBQuery/query = dbcon.NewQuery("UPDATE `tgstation`.`ntcred_accounts` SET `balance`=`balance`-[amount] where `account_number`=[account_number]")
 		if (!query.Execute())
-			world << query.ErrorMsg() //TODO: proper error message
+			world << query.ErrorMsg() //TODO: proper error message instead of piping to world
 	money -= amount
 
 /datum/transaction
@@ -94,51 +93,48 @@
 			T.amount            = text2num(check_query.item[4])
 			A.remote_access_pin = text2num(check_query.item[5])
 		else
-			world << "Financial DB entry not found."
+			world << "Financial DB entry not found." //TODO: proper error message instead of pipe to world
 	else
 		//fallback mode
-		world << "Bank account for [M.key] created in fallback mode."
+		world << "Bank account for [M.key] created in fallback mode." //TODO: proper error message instead of piping to world
 
 	//add the account
 	A.transaction_log.Add(T)
-	all_money_accounts.Add(A)
+	all_money_accounts[A.account_number] = A
 
 	return A
 
 /proc/charge_to_account(var/attempt_account_number, var/source_name, var/purpose, var/terminal_id, var/amount)
-	for(var/datum/money_account/D in all_money_accounts)
-		if(D.account_number == attempt_account_number && !D.suspended)
-			D.deposit(amount)
+	if (attempt_account_number in all_money_accounts)
+		var/datum/money_account/D = all_money_accounts[attempt_account_number]
 
-			//create a transaction log entry
-			var/datum/transaction/T = new()
-			T.target_name = source_name
-			T.purpose = purpose
-			if(amount < 0)
-				T.amount = "([amount])"
-			else
-				T.amount = "[amount]"
-			// gameyear is current year + 544 years, so add that much to byondtime (byond time is in .1 seconds)
-			T.time = world.realtime
-			T.source_terminal = terminal_id
-			D.transaction_log.Add(T)
+		D.deposit(amount)
 
-			return 1
+		//create a transaction log entry
+		var/datum/transaction/T = new()
+		T.target_name = source_name
+		T.purpose = purpose
+		if(amount < 0)
+			T.amount = "([amount])"
+		else
+			T.amount = "[amount]"
+		// gameyear is current year + 544 years, so add that much to byondtime (byond time is in .1 seconds)
+		T.time = world.realtime
+		T.source_terminal = terminal_id
+		D.transaction_log.Add(T)
+
+		return 1
 
 	return 0
 
 //this returns the first account datum that matches the supplied accnum/pin combination, it returns null if the combination did not match any account
 /proc/attempt_account_access(var/attempt_account_number, var/attempt_pin_number)
-	for(var/datum/money_account/D in all_money_accounts)
-		if(D.account_number == attempt_account_number)
-			world << text2num(attempt_pin_number)
-			world << attempt_pin_number
-			world << D.remote_access_pin
-			if ((D.security_level > 0 && D.remote_access_pin == text2num(attempt_pin_number)) || (D.security_level == 0))
-				return D
-			break
+	if (attempt_account_number in all_money_accounts)
+		var/datum/money_account/D = all_money_accounts[attempt_account_number]
+		if ((D.security_level > 0 && D.remote_access_pin == text2num(attempt_pin_number)) || (D.security_level == 0))
+			return D
 
 /proc/find_account(var/account_number)
-	for(var/datum/money_account/D in all_money_accounts)
-		if(D.account_number == account_number)
-			return D
+	if (account_number in all_money_accounts)
+		return all_money_accounts[account_number]
+	return 0
