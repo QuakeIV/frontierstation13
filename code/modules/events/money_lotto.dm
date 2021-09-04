@@ -19,7 +19,6 @@
 		T.target_name = "Nyx Daily Grand Slam -Stellar- Lottery"
 		T.purpose = "Winner!"
 		T.amount = winner_sum
-		T.time = world.realtime
 		T.source_terminal = "Biesel TCD Terminal #[rand(111,333)]"
 		D.transaction_log.Add(T)
 

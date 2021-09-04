@@ -25,6 +25,8 @@
 
 			if (escaped || alive)
 				var/value = 0
+				//TODO: we might want to search for any other valuable items and refund them (need to implement value system first however)
+				// possibly wait until we have a good system for storing items instead
 				for (var/obj/item/weapon/spacecash/c in M.search_contents_for(/obj/item/weapon/spacecash))
 					world << "found '[c]' on [M] worth [c.worth] credits"
 					value += c.worth
@@ -38,12 +40,17 @@
 			world << query.ErrorMsg() //TODO: proper error message instead of piping to world
 	money += amount
 
+// returns 1 if withdrawal succeeded, 0 otherwise
 /datum/money_account/proc/withdraw(amount=0)
+	if (amount > money)
+		return 0
+
 	if(dbcon.IsConnected())
 		var/DBQuery/query = dbcon.NewQuery("UPDATE `tgstation`.`ntcred_accounts` SET `balance`=`balance`-[amount] where `account_number`=[account_number]")
 		if (!query.Execute())
 			world << query.ErrorMsg() //TODO: proper error message instead of piping to world
 	money -= amount
+	return 1
 
 /datum/transaction
 	var/target_name = ""
@@ -51,6 +58,9 @@
 	var/amount = 0
 	var/time = 0
 	var/source_terminal = ""
+
+/datum/transaction/New()
+	time = ss13time2text()
 
 //TODO: use proper error reporting functions
 /proc/get_account(var/mob/living/M, var/starting_funds = 0)
@@ -62,7 +72,6 @@
 	var/datum/transaction/T = new()
 	T.source_terminal = "NTCREDIT BACKBONE #[rand(111,1111)]"
 	T.purpose = "Update local NTCREDIT terminal network with account information."
-	T.time = world.realtime
 	//create an entry in the account transaction log for when it was created
 	T.target_name = M.real_name
 
@@ -103,29 +112,6 @@
 	all_money_accounts[A.account_number] = A
 
 	return A
-
-/proc/charge_to_account(var/attempt_account_number, var/source_name, var/purpose, var/terminal_id, var/amount)
-	if (attempt_account_number in all_money_accounts)
-		var/datum/money_account/D = all_money_accounts[attempt_account_number]
-
-		D.deposit(amount)
-
-		//create a transaction log entry
-		var/datum/transaction/T = new()
-		T.target_name = source_name
-		T.purpose = purpose
-		if(amount < 0)
-			T.amount = "([amount])"
-		else
-			T.amount = "[amount]"
-		// gameyear is current year + 544 years, so add that much to byondtime (byond time is in .1 seconds)
-		T.time = world.realtime
-		T.source_terminal = terminal_id
-		D.transaction_log.Add(T)
-
-		return 1
-
-	return 0
 
 //this returns the first account datum that matches the supplied accnum/pin combination, it returns null if the combination did not match any account
 /proc/attempt_account_access(var/attempt_account_number, var/attempt_pin_number)

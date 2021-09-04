@@ -98,10 +98,9 @@ log transactions
 			//create a transaction log entry
 			var/datum/transaction/T = new()
 			T.target_name = authenticated_account.owner_name
-			T.purpose = "Credit deposit"
+			T.purpose = "Cash deposit"
 			T.amount = I:worth
-			T.source_terminal = machine_id
-			T.time = world.realtime
+			T.source_terminal = "NTNET Terminal #[machine_id]"
 			authenticated_account.transaction_log.Add(T)
 
 			user << "<span class='info'>You insert [I] into [src].</span>"
@@ -159,7 +158,7 @@ log transactions
 						dat += "</tr>"
 						for(var/datum/transaction/T in authenticated_account.transaction_log)
 							dat += "<tr>"
-							dat += "<td>[ss13time2text(T.time)]</td>"
+							dat += "<td>[T.time]</td>"
 							dat += "<td>[T.target_name]</td>"
 							dat += "<td>[T.purpose]</td>"
 							dat += "<td>$[T.amount]</td>"
@@ -213,24 +212,28 @@ log transactions
 					transfer_amount = round(transfer_amount, 0.01)
 					if(transfer_amount <= 0)
 						alert("That is not a valid amount.")
-					else if(transfer_amount <= authenticated_account.money)
-						var/target_account_number = href_list["target_acc_number"]
-						var/transfer_purpose = href_list["purpose"]
-						if(charge_to_account(target_account_number, authenticated_account.owner_name, transfer_purpose, machine_id, transfer_amount))
-							usr << "\icon[src]<span class='info'>Funds transfer successful.</span>"
-							authenticated_account.withdraw(transfer_amount)
+					else if (!(href_list["target_acc_number"] in all_money_accounts))
+						usr << "\icon[src]<span class='warning'>Invalid destination account.</span>"
+					else if(authenticated_account.withdraw(transfer_amount))
+						var/datum/money_account/target_account = all_money_accounts[href_list["target_acc_number"]]
+						target_account.deposit(transfer_amount)
 
-							//create an entry in the account transaction log
-							var/datum/transaction/T = new()
-							T.target_name = "Account #[target_account_number]"
-							T.purpose = transfer_purpose
-							T.source_terminal = machine_id
-							T.time = world.realtime
-							T.amount = "([transfer_amount])"
-							authenticated_account.transaction_log.Add(T)
-						else
-							usr << "\icon[src]<span class='warning'>Funds transfer failed.</span>"
+						//create a transaction log entry for target account
+						var/datum/transaction/T = new()
+						T.target_name = authenticated_account.owner_name
+						T.purpose = href_list["purpose"]
+						T.amount = "[transfer_amount]"
+						T.source_terminal = "NTNET Terminal #[machine_id]"
+						target_account.transaction_log.Add(T)
+						usr << "\icon[src]<span class='info'>Funds transfer successful.</span>"
 
+						//create a transaction log entry for source accountc
+						T = new()
+						T.target_name = "Account #[href_list["target_acc_number"]]"
+						T.purpose = href_list["purpose"]
+						T.source_terminal = "NTNET Terminal #[machine_id]"
+						T.amount = "([transfer_amount])"
+						authenticated_account.transaction_log.Add(T)
 					else
 						usr << "\icon[src]<span class='warning'>You don't have enough funds to do that!</span>"
 			if("view_screen")
@@ -267,8 +270,7 @@ log transactions
 								var/datum/transaction/T = new()
 								T.target_name = failed_account.owner_name
 								T.purpose = "Unauthorised login attempt"
-								T.source_terminal = machine_id
-								T.time = world.realtime
+								T.source_terminal = "NTNET Terminal #[machine_id]"
 								failed_account.transaction_log.Add(T)
 						else
 							usr << "\red \icon[src] Incorrect pin/account combination entered, [max_pin_attempts - number_incorrect_tries] attempts remaining."
@@ -286,8 +288,7 @@ log transactions
 					var/datum/transaction/T = new()
 					T.target_name = authenticated_account.owner_name
 					T.purpose = "Remote terminal access"
-					T.source_terminal = machine_id
-					T.time = world.realtime
+					T.source_terminal = "NTNET Terminal #[machine_id]"
 					authenticated_account.transaction_log.Add(T)
 
 					usr << "\blue \icon[src] Access granted. Welcome user '[authenticated_account.owner_name].'"
@@ -313,8 +314,7 @@ log transactions
 						T.target_name = authenticated_account.owner_name
 						T.purpose = "Credit withdrawal"
 						T.amount = "([amount])"
-						T.source_terminal = machine_id
-						T.time = world.realtime
+						T.source_terminal = "NTNET Terminal #[machine_id]"
 						authenticated_account.transaction_log.Add(T)
 					else
 						usr << "\icon[src]<span class='warning'>You don't have enough funds to do that!</span>"
@@ -337,8 +337,7 @@ log transactions
 						T.target_name = authenticated_account.owner_name
 						T.purpose = "Credit withdrawal"
 						T.amount = "([amount])"
-						T.source_terminal = machine_id
-						T.time = world.realtime
+						T.source_terminal = "NTNET Terminal #[machine_id]"
 						authenticated_account.transaction_log.Add(T)
 					else
 						usr << "\icon[src]<span class='warning'>You don't have enough funds to do that!</span>"
@@ -386,7 +385,7 @@ log transactions
 					R.info += "</tr>"
 					for(var/datum/transaction/T in authenticated_account.transaction_log)
 						R.info += "<tr>"
-						R.info += "<td>[ss13time2text(T.time)]</td>"
+						R.info += "<td>[T.time]</td>"
 						R.info += "<td>[T.target_name]</td>"
 						R.info += "<td>[T.purpose]</td>"
 						R.info += "<td>$[T.amount]</td>"
@@ -446,8 +445,7 @@ log transactions
 					var/datum/transaction/T = new()
 					T.target_name = authenticated_account.owner_name
 					T.purpose = "Remote terminal access"
-					T.source_terminal = machine_id
-					T.time = world.realtime
+					T.source_terminal = "NTNET Terminal #[machine_id]"
 					authenticated_account.transaction_log.Add(T)
 
 					view_screen = NO_SCREEN

@@ -328,6 +328,7 @@
 
 	// Have the customer punch in the PIN before checking if there's enough money. Prevents people from figuring out acct is
 	// empty at high security levels
+	// TODO: probably should commonize security checks as part of the accounts library
 	if(customer_account.security_level != 0) //If card requires pin authentication (ie seclevel 1 or 2)
 		var/attempt_pin = text2num(input("Enter pin code", "Vendor transaction"))
 		customer_account = attempt_account_access(I.associated_account_number, attempt_pin)
@@ -337,16 +338,7 @@
 			src.status_error = 1
 			return 0
 
-	if(currently_vending.price > customer_account.money)
-		src.status_message = "Insufficient funds in account."
-		src.status_error = 1
-		return 0
-	else
-		// Okay to move the money at this point
-
-		// debit money from the purchaser's account
-		customer_account.withdraw(currently_vending.price)
-
+	if (customer_account.withdraw(currently_vending.price))
 		// create entry in the purchaser's account log
 		var/datum/transaction/T = new()
 		T.target_name = "Vending Machine (via [src.name])" //TODO: goofy vending machine corporate account name?
@@ -355,10 +347,13 @@
 			T.amount = "([currently_vending.price])"
 		else
 			T.amount = "[currently_vending.price]"
-		T.source_terminal = src.name
-		T.time = world.realtime
+		T.source_terminal = "[src.name]"
 		customer_account.transaction_log.Add(T)
 		return 1
+	else
+		src.status_message = "Insufficient funds in account."
+		src.status_error = 1
+		return 0
 
 /obj/machinery/vending/attack_ai(mob/user as mob)
 	return attack_hand(user)

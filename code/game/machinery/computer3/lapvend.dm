@@ -224,10 +224,7 @@
 // Transfers money and vends the laptop.
 /obj/machinery/lapvend/proc/transfer_and_vend(var/datum/money_account/D, var/obj/item/weapon/card/C)
 	var/transaction_amount = total()
-	if(transaction_amount <= D.money)
-
-		//transfer the money
-		D.withdraw(transaction_amount)
+	if(D.withdraw(transaction_amount))
 		//Transaction logs
 		var/datum/transaction/T = new()
 		T.target_name = "Laptop Vendor (via [src.name])"
@@ -236,8 +233,7 @@
 			T.amount = "([transaction_amount])"
 		else
 			T.amount = "[transaction_amount]"
-		T.source_terminal = src.name
-		T.time = world.realtime
+		T.source_terminal = "[src.name]"
 		D.transaction_log.Add(T)
 
 		newlap = new /obj/machinery/computer3/laptop/vended(src.loc)
@@ -371,8 +367,7 @@
 		T.amount = "([transaction_amount])"
 	else
 		T.amount = "[transaction_amount]"
-	T.source_terminal = src.name
-	T.time = world.realtime
+	T.source_terminal = "[src.name]"
 	D.transaction_log.Add(T)
 
 	qdel(relap)

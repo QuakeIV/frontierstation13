@@ -133,8 +133,7 @@
 					T.target_name = E.owner_name //D.owner_name
 					T.purpose = (transaction_purpose ? transaction_purpose : "None supplied.")
 					T.amount = transaction_amount
-					T.source_terminal = machine_id
-					T.time = world.realtime
+					T.source_terminal = "EFTPOS #[machine_id]"
 					linked_account.transaction_log.Add(T)
 				else
 					usr << "\icon[src]<span class='warning'>\The [O] doesn't have that much money!</span>"
@@ -248,16 +247,14 @@
 							T.amount = "([transaction_amount])"
 						else
 							T.amount = "[transaction_amount]"
-						T.source_terminal = machine_id
-						T.time = world.realtime
+						T.source_terminal = "EFTPOS #[machine_id]"
 						D.transaction_log.Add(T)
 						//
 						T = new()
 						T.target_name = D.owner_name
 						T.purpose = transaction_purpose
 						T.amount = "[transaction_amount]"
-						T.source_terminal = machine_id
-						T.time = world.realtime
+						T.source_terminal = "EFTPOS #[machine_id]"
 						linked_account.transaction_log.Add(T)
 					else
 						usr << "\icon[src]<span class='warning'>You don't have that much money!</span>"

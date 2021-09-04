@@ -429,6 +429,7 @@ var/global/datum/controller/occupations/job_master
 				H.buckled.set_dir(H.dir)
 
 		//give them an account in the station database
+		// TODO: its kindof jank that 'minds' are what have accounts tied to them
 		var/datum/money_account/M = get_account(H, rand(50,500)*10)
 		if(H.mind)
 			var/remembered_info = ""
