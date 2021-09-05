@@ -419,6 +419,7 @@ obj/machinery/nuclearbomb/proc/nukehack_win(mob/user as mob)
 					blackbox.save_all_data_to_sql()
 				sleep(300)
 				log_game("Rebooting due to nuclear detonation")
+				handle_money_persistence()
 				world.Reboot()
 				return
 	return

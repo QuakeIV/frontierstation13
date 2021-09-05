@@ -429,32 +429,18 @@ var/global/datum/controller/occupations/job_master
 				H.buckled.set_dir(H.dir)
 
 		//give them an account in the station database
-		var/datum/money_account/M = create_account(H.real_name, rand(50,500)*10, null)
+		// TODO: its kindof jank that 'minds' are what have accounts tied to them
+		var/datum/money_account/M = get_account(H, rand(50,500)*10)
 		if(H.mind)
 			var/remembered_info = ""
 			remembered_info += "<b>Your account number is:</b> #[M.account_number]<br>"
 			remembered_info += "<b>Your account pin is:</b> [M.remote_access_pin]<br>"
 			remembered_info += "<b>Your account funds are:</b> $[M.money]<br>"
+			remembered_info += "<b>Your account was created:</b> [ss13time2text(M.creation_time)]<br>"
 
-			if(M.transaction_log.len)
-				var/datum/transaction/T = M.transaction_log[1]
-				remembered_info += "<b>Your account was created:</b> [T.time], [T.date] at [T.source_terminal]<br>"
 			H.mind.store_memory(remembered_info)
 
 			H.mind.initial_account = M
-
-		// If they're head, give them the account info for their department
-		if(H.mind && job.head_position)
-			var/remembered_info = ""
-			var/datum/money_account/department_account = department_accounts[job.department]
-
-			if(department_account)
-				remembered_info += "<b>Your department's account number is:</b> #[department_account.account_number]<br>"
-				remembered_info += "<b>Your department's account pin is:</b> [department_account.remote_access_pin]<br>"
-				remembered_info += "<b>Your department's account funds are:</b> $[department_account.money]<br>"
-
-			H.mind.store_memory(remembered_info)
-
 		spawn(0)
 			H << "\blue<b>Your account number is: [M.account_number], your account pin is: [M.remote_access_pin]</b>"
 

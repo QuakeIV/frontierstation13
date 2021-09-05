@@ -61,9 +61,9 @@
 	if(!gibbed && species.death_sound)
 		playsound(loc, species.death_sound, 80, 1, 1)
 
+	sql_report_death(src)
 
 	if(ticker && ticker.mode)
-		sql_report_death(src)
 		ticker.mode.check_win()
 
 	return ..(gibbed,species.death_message)

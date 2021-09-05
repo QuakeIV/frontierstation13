@@ -179,7 +179,7 @@
 
 	var/obj/item/weapon/card/id/I = W.GetID()
 
-	if (currently_vending && vendor_account && !vendor_account.suspended)
+	if (currently_vending)
 		var/paid = 0
 		var/handled = 0
 
@@ -291,9 +291,6 @@
 
 		if(left)
 			spawn_money(left, src.loc, user)
-
-	// Vending machines have no idea who paid with cash
-	credit_purchase("(cash)")
 	return 1
 
 /**
@@ -310,7 +307,6 @@
 		return 0
 	else
 		wallet.worth -= currently_vending.price
-		credit_purchase("[wallet.owner_name] (chargecard)")
 		return 1
 
 /**
@@ -324,73 +320,40 @@
 		visible_message("<span class='info'>\The [usr] swipes \the [I] through \the [src].</span>")
 	else
 		visible_message("<span class='info'>\The [usr] swipes \the [ID_container] through \the [src].</span>")
-	var/datum/money_account/customer_account = get_account(I.associated_account_number)
+	var/datum/money_account/customer_account = find_account(I.associated_account_number)
 	if (!customer_account)
 		src.status_message = "Error: Unable to access account. Please contact technical support if problem persists."
 		src.status_error = 1
 		return 0
 
-	if(customer_account.suspended)
-		src.status_message = "Unable to access account: account suspended."
-		src.status_error = 1
-		return 0
-
 	// Have the customer punch in the PIN before checking if there's enough money. Prevents people from figuring out acct is
 	// empty at high security levels
+	// TODO: probably should commonize security checks as part of the accounts library
 	if(customer_account.security_level != 0) //If card requires pin authentication (ie seclevel 1 or 2)
-		var/attempt_pin = input("Enter pin code", "Vendor transaction") as num
-		customer_account = attempt_account_access(I.associated_account_number, attempt_pin, 2)
+		var/attempt_pin = text2num(input("Enter pin code", "Vendor transaction"))
+		customer_account = attempt_account_access(I.associated_account_number, attempt_pin)
 
 		if(!customer_account)
 			src.status_message = "Unable to access account: incorrect credentials."
 			src.status_error = 1
 			return 0
 
-	if(currently_vending.price > customer_account.money)
-		src.status_message = "Insufficient funds in account."
-		src.status_error = 1
-		return 0
-	else
-		// Okay to move the money at this point
-
-		// debit money from the purchaser's account
-		customer_account.money -= currently_vending.price
-
+	if (customer_account.withdraw(currently_vending.price))
 		// create entry in the purchaser's account log
 		var/datum/transaction/T = new()
-		T.target_name = "[vendor_account.owner_name] (via [src.name])"
+		T.target_name = "Vending Machine (via [src.name])" //TODO: goofy vending machine corporate account name?
 		T.purpose = "Purchase of [currently_vending.product_name]"
 		if(currently_vending.price > 0)
 			T.amount = "([currently_vending.price])"
 		else
 			T.amount = "[currently_vending.price]"
-		T.source_terminal = src.name
-		T.date = current_date_string
-		T.time = worldtime2text()
+		T.source_terminal = "[src.name]"
 		customer_account.transaction_log.Add(T)
-
-		// Give the vendor the money. We use the account owner name, which means
-		// that purchases made with stolen/borrowed card will look like the card
-		// owner made them
-		credit_purchase(customer_account.owner_name)
 		return 1
-
-/**
- *  Add money for current purchase to the vendor account.
- *
- *  Called after the money has already been taken from the customer.
- */
-/obj/machinery/vending/proc/credit_purchase(var/target as text)
-	vendor_account.money += currently_vending.price
-
-	var/datum/transaction/T = new()
-	T.target_name = target
-	T.purpose = "Purchase of [currently_vending.product_name]"
-	T.amount = "[currently_vending.price]"
-	T.source_terminal = src.name
-	T.date = current_date_string
-	T.time = worldtime2text()
-	vendor_account.transaction_log.Add(T)
+	else
+		src.status_message = "Insufficient funds in account."
+		src.status_error = 1
+		return 0
 
 /obj/machinery/vending/attack_ai(mob/user as mob)
 	return attack_hand(user)
@@ -495,12 +458,8 @@
 				return
 			else
 				src.currently_vending = R
-				if(!vendor_account || vendor_account.suspended)
-					src.status_message = "This machine is currently unable to process payments due to problems with the associated account."
-					src.status_error = 1
-				else
-					src.status_message = "Please swipe a card or insert cash to pay for the item."
-					src.status_error = 0
+				src.status_message = "Please swipe a card or insert cash to pay for the item."
+				src.status_error = 0
 
 		else if (href_list["cancelpurchase"])
 			src.currently_vending = null

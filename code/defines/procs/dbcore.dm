@@ -31,13 +31,6 @@
 #define BLOB		14
 // TODO: Investigate more recent type additions and see if I can handle them. - Nadrew
 
-
-// Deprecated! See global.dm for new configuration vars
-/*
-var/DB_SERVER = "" // This is the location of your MySQL server (localhost is USUALLY fine)
-var/DB_PORT = 3306 // This is the port your MySQL server is running on (3306 is the default)
-*/
-
 DBConnection
 	var/_db_con // This variable contains a reference to the actual database connection.
 	var/dbi // This variable is a string containing the DBI MySQL requires.
@@ -56,8 +49,6 @@ DBConnection/New(dbi_handler,username,password_handler,cursor_handler)
 	_db_con = _dm_db_new_con()
 
 DBConnection/proc/Connect(dbi_handler=src.dbi,user_handler=src.user,password_handler=src.password,cursor_handler)
-	if(!sqllogging)
-		return 0
 	if(!src) return 0
 	cursor_handler = src.default_cursor
 	if(!cursor_handler) cursor_handler = Default_Cursor
@@ -66,7 +57,6 @@ DBConnection/proc/Connect(dbi_handler=src.dbi,user_handler=src.user,password_han
 DBConnection/proc/Disconnect() return _dm_db_close(_db_con)
 
 DBConnection/proc/IsConnected()
-	if(!sqllogging) return 0
 	var/success = _dm_db_is_connected(_db_con)
 	return success
 

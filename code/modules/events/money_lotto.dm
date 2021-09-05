@@ -1,3 +1,7 @@
+
+// switching to associative-list style bank accounts, so this is disabled pending integration with that
+// (im not sure if pick will work right with that and am unsure how to test that) - QuakeIV
+
 /datum/event/money_lotto
 	var/winner_name = "John Smith"
 	var/winner_sum = 0
@@ -8,19 +12,17 @@
 	if(all_money_accounts.len)
 		var/datum/money_account/D = pick(all_money_accounts)
 		winner_name = D.owner_name
-		if(!D.suspended)
-			D.money += winner_sum
 
-			var/datum/transaction/T = new()
-			T.target_name = "Nyx Daily Grand Slam -Stellar- Lottery"
-			T.purpose = "Winner!"
-			T.amount = winner_sum
-			T.date = current_date_string
-			T.time = worldtime2text()
-			T.source_terminal = "Biesel TCD Terminal #[rand(111,333)]"
-			D.transaction_log.Add(T)
+		D.deposit(winner_sum)
 
-			deposit_success = 1
+		var/datum/transaction/T = new()
+		T.target_name = "Nyx Daily Grand Slam -Stellar- Lottery"
+		T.purpose = "Winner!"
+		T.amount = winner_sum
+		T.source_terminal = "Biesel TCD Terminal #[rand(111,333)]"
+		D.transaction_log.Add(T)
+
+		deposit_success = 1
 
 /datum/event/money_lotto/announce()
 	var/author = "NanoTrasen Editor"
